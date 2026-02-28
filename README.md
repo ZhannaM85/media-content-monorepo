@@ -2,6 +2,8 @@
 
 A small production-style Angular platform demonstrating **Nx monorepo**, **Module Federation** (micro frontends), shared libraries, and role-based access control. It simulates a simplified media/content rights management platform.
 
+**Live demo:** [https://zhannam85.github.io/media-content-monorepo/](https://zhannam85.github.io/media-content-monorepo/)
+
 ## Architecture
 
 - **admin-shell** (host): Main app with layout, nav, login, and lazy-loaded remotes.
