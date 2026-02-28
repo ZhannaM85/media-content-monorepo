@@ -58,6 +58,6 @@
     }
     <div class="actions">
         <button type="submit" [disabled]="form.invalid">Save</button>
-        <a routerLink="/rights">Cancel</a>
+        <button type="button" (click)="goBack()">Cancel</button>
     </div>
 </form>
