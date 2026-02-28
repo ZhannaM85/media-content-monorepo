@@ -24,6 +24,14 @@ node_modules
 !.vscode/launch.json
 !.vscode/extensions.json
 
+# Local env files (API keys, secrets)
+.env
+.env.local
+.env.*.local
+
+# Generated from .env by scripts/inject-env.js - may contain TMDB key
+apps/admin-shell/src/environments/environment.generated.ts
+
 # misc
 /.sass-cache
 /connect.lock
@@ -44,3 +52,5 @@ Thumbs.db
 .angular
 
 __screenshots__/
+
+

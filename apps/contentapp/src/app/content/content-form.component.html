@@ -1,0 +1,32 @@
+<h1>{{ isEdit() ? 'Edit content' : 'New content' }}</h1>
+<div class="layout">
+    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+        <div>
+            <label for="title">Title</label>
+            <input id="title" type="text" formControlName="title" />
+            @if (titleError()) {
+                <span class="error">{{ titleError() }}</span>
+            }
+        </div>
+        <div>
+            <label>Overview</label>
+            <textarea formControlName="overview" rows="4"></textarea>
+        </div>
+        <div>
+            <label>Release date</label>
+            <input type="date" formControlName="releaseDate" />
+        </div>
+        @if (isEdit() && isDraft()) {
+            <button type="button" (click)="onDelete()">Delete draft</button>
+        }
+        <div class="actions">
+            <button type="submit" [disabled]="form.invalid">Save</button>
+            <a routerLink="../..">Cancel</a>
+        </div>
+    </form>
+    @if (posterUrl()) {
+        <div class="poster-wrap">
+            <img [src]="posterUrl()" alt="Poster" class="poster-large" />
+        </div>
+    }
+</div>
