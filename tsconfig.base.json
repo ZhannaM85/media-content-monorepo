@@ -14,7 +14,17 @@
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
-    "paths": {}
+    "paths": {
+      "contentapp/Routes": [
+        "apps/contentapp/src/app/remote-entry/entry.routes.ts"
+      ],
+      "rightsapp/Routes": [
+        "apps/rightsapp/src/app/remote-entry/entry.routes.ts"
+      ],
+      "@media-content/shared-types": ["libs/shared-types/src/index.ts"],
+      "@media-content/shared-ui": ["libs/shared-ui/src/index.ts"],
+      "@media-content/shared-auth": ["libs/shared-auth/src/index.ts"],"@media-content/shared-data-access":["libs/shared-data-access/src/index.ts"]
+    }
   },
   "exclude": ["node_modules", "tmp"]
 }

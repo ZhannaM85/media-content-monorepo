@@ -1,0 +1,149 @@
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  signal,
+  computed,
+} from '@angular/core';
+import { AsyncPipe } from '@angular/common';
+import { RouterLink } from '@angular/router';
+import { FormsModule } from '@angular/forms';
+import { TmdbService } from '@media-content/shared-data-access';
+import {
+  ButtonComponent,
+  TableComponent,
+  PaginationComponent,
+} from '@media-content/shared-ui';
+import type { Content } from '@media-content/shared-types';
+import { HasRoleDirective } from '@media-content/shared-auth';
+import { ContentDraftService } from './content-draft.service';
+
+@Component({
+  selector: 'app-content-list',
+  standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [
+    AsyncPipe,
+    RouterLink,
+    FormsModule,
+    ButtonComponent,
+    TableComponent,
+    PaginationComponent,
+    HasRoleDirective,
+  ],
+  template: `
+    <h1>Content</h1>
+    <div class="toolbar">
+      <select [ngModel]="filterStatus()" (ngModelChange)="onFilterChange($event)">
+        <option value="all">All</option>
+        <option value="tmdb">From TMDB</option>
+        <option value="draft">Drafts</option>
+      </select>
+      <span *libHasRole="'editor'">
+        <a routerLink="new" class="btn">Add content</a>
+      </span>
+    </div>
+    @if (loading()) {
+      <p>Loading…</p>
+    } @else {
+      <lib-table [columns]="columns">
+        @for (item of list(); track trackById($index, item)) {
+          <tr>
+            <td>{{ item.title }}</td>
+            <td>{{ item.releaseDate || '—' }}</td>
+            <td>{{ item.voteAverage ?? '—' }}</td>
+            <td>
+              <a [routerLink]="[item.id, 'edit']">Edit</a>
+            </td>
+          </tr>
+        }
+      </lib-table>
+      @if (filterStatus() !== 'draft' && totalPages() > 0) {
+        <lib-pagination
+          [currentPage]="currentPage()"
+          [totalPages]="totalPages()"
+          (pageChange)="goToPage($event)"
+        />
+      }
+    }
+  `,
+  styles: [
+    `
+      .toolbar {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+        margin-bottom: 1rem;
+      }
+      .btn {
+        padding: 0.5rem 1rem;
+        background: #1976d2;
+        color: white;
+        text-decoration: none;
+        border-radius: 4px;
+      }
+    `,
+  ],
+})
+export class ContentListComponent {
+  private readonly tmdb = inject(TmdbService);
+  private readonly draftService = inject(ContentDraftService);
+
+  filterStatus = signal<'all' | 'tmdb' | 'draft'>('all');
+  currentPage = signal(1);
+  loading = signal(false);
+  totalPages = signal(0);
+  private tmdbResults = signal<Content[]>([]);
+
+  columns = [
+    { key: 'title', label: 'Title' },
+    { key: 'releaseDate', label: 'Release date' },
+    { key: 'voteAverage', label: 'Rating' },
+    { key: 'actions', label: 'Actions' },
+  ];
+
+  list = computed(() => {
+    const filter = this.filterStatus();
+    const tmdb = this.tmdbResults();
+    const drafts = this.draftService.drafts();
+    if (filter === 'tmdb') return tmdb;
+    if (filter === 'draft') return drafts;
+    return [...drafts, ...tmdb];
+  });
+
+  constructor() {
+    this.loadPage();
+  }
+
+  trackById(_index: number, item: Content): number | string {
+    return item.id;
+  }
+
+  onFilterChange(v: string) {
+    this.filterStatus.set(v as 'all' | 'tmdb' | 'draft');
+    if (v !== 'draft') this.loadPage();
+  }
+
+  goToPage(page: number) {
+    this.currentPage.set(page);
+    this.loadPage();
+  }
+
+  private loadPage() {
+    if (this.filterStatus() === 'draft') return;
+    this.loading.set(true);
+    this.tmdb
+      .discoverMovies({
+        page: this.currentPage(),
+        sortBy: 'popularity.desc',
+      })
+      .subscribe({
+        next: (res) => {
+          this.tmdbResults.set(res.results);
+          this.totalPages.set(res.totalPages);
+          this.loading.set(false);
+        },
+        error: () => this.loading.set(false),
+      });
+  }
+}

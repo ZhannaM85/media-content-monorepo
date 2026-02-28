@@ -1,0 +1,17 @@
+<header class="shell-header">
+  <nav class="shell-nav">
+    <a routerLink="/content" routerLinkActive="active">Content</a>
+    <a routerLink="/rights" routerLinkActive="active">Rights</a>
+  </nav>
+  <div class="shell-auth">
+    @if (auth.isLoggedIn()) {
+      <span class="user">{{ auth.currentUser()?.username }} ({{ auth.currentUser()?.role }})</span>
+      <button type="button" (click)="logout()">Logout</button>
+    } @else {
+      <a routerLink="/login">Login</a>
+    }
+  </div>
+</header>
+<main class="shell-main">
+  <router-outlet></router-outlet>
+</main>
