@@ -9,12 +9,12 @@
             }
         </div>
         <div>
-            <label>Overview</label>
-            <textarea formControlName="overview" rows="4"></textarea>
+            <label for="overview">Overview</label>
+            <textarea id="overview" formControlName="overview" rows="4"></textarea>
         </div>
         <div>
-            <label>Release date</label>
-            <input type="date" formControlName="releaseDate" />
+            <label for="releaseDate">Release date</label>
+            <input id="releaseDate" type="date" formControlName="releaseDate" />
         </div>
         @if (isEdit() && isDraft()) {
             <button type="button" (click)="onDelete()">Delete draft</button>

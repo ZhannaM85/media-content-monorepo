@@ -1,10 +1,11 @@
 {
-  "name": "@media-content/shared-auth",
-  "version": "0.0.1",
-  "peerDependencies": {
-    "@angular/common": "^21.1.0",
-    "@angular/core": "^21.1.0",
-    "@angular/router": "^21.1.0"
-  },
-  "sideEffects": false
+    "name": "@media-content/shared-auth",
+    "version": "0.0.1",
+    "peerDependencies": {
+        "@angular/common": "^21.1.0",
+        "@angular/core": "^21.1.0",
+        "@angular/router": "^21.1.0",
+        "@media-content/shared-types": "*"
+    },
+    "sideEffects": false
 }

@@ -4,7 +4,8 @@
     "license": "MIT",
     "scripts": {
         "start": "node scripts/inject-env.js && nx serve admin-shell",
-        "build": "node scripts/inject-env.js && nx build admin-shell"
+        "build": "node scripts/inject-env.js && nx build admin-shell",
+        "lint": "nx run-many -t lint --projects=admin-shell,contentapp,rightsapp,shared-ui,shared-auth,shared-data-access,media-content"
     },
     "private": true,
     "dependencies": {

@@ -1,11 +1,13 @@
-<label [class.has-error]="error()">{{ label() }}</label>
-<input
-    [type]="type()"
-    [placeholder]="placeholder()"
-    [value]="value()"
-    (input)="onInput($event)"
-    [disabled]="disabled()"
-/>
+<label [class.has-error]="error()">
+    {{ label() }}
+    <input
+        [type]="type()"
+        [placeholder]="placeholder()"
+        [value]="value()"
+        (input)="onInput($event)"
+        [disabled]="disabled()"
+    />
+</label>
 @if (error()) {
     <span class="error">{{ error() }}</span>
 }
