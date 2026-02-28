@@ -28,9 +28,9 @@
                     }
                 </td>
                 <td class="title-cell">{{ item.title }}</td>
-                <td>{{ item.releaseDate || '—' }}</td>
-                <td>{{ item.voteAverage ?? '—' }}</td>
-                <td>
+                <td class="content-cell">{{ item.releaseDate || '—' }}</td>
+                <td class="content-cell">{{ item.voteAverage ?? '—' }}</td>
+                <td class="content-cell">
                     <a [routerLink]="[item.id, 'edit']">Edit</a>
                 </td>
             </tr>
