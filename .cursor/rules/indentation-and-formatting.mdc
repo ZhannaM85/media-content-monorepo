@@ -1,0 +1,10 @@
+---
+description: Use 4 spaces indentation and project formatting conventions
+alwaysApply: true
+---
+
+# Indentation and Formatting
+
+- **Indent with 4 spaces** everywhere (TypeScript, HTML, SCSS/CSS, JSON, config files).
+- The project uses `.editorconfig` (`indent_size = 4`) and Prettier (`tabWidth: 4`). When editing or generating code, use 4 spaces for indentation, not 2 or tabs.
+- When creating new files or modifying existing ones, preserve 4-space indentation and match the existing style.

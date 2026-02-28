@@ -1,0 +1,63 @@
+.toolbar {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+.btn {
+    padding: 0.5rem 1rem;
+    background: var(--color-button-primary-bg);
+    color: white;
+    text-decoration: none;
+    border-radius: var(--radius);
+    font-weight: 500;
+}
+.btn:hover {
+    background: var(--color-button-primary-hover);
+}
+select {
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--color-input-border);
+    border-radius: 4px;
+    background: var(--color-surface);
+    color: var(--color-text);
+}
+:host ::ng-deep .lib-table th:first-child {
+    padding: 0.75rem 0.35rem;
+    width: 52px;
+}
+.poster-cell {
+    width: 52px;
+    padding: 0.35rem !important;
+    vertical-align: middle;
+}
+.title-cell,
+.content-cell {
+    padding-left: 1.25rem;
+}
+.poster-thumb {
+    width: 46px;
+    height: 69px;
+    object-fit: cover;
+    border-radius: 4px;
+    display: block;
+}
+.poster-placeholder {
+    width: 46px;
+    height: 69px;
+    background: var(--color-table-row-hover);
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.65rem;
+    color: var(--color-text-secondary);
+    text-align: center;
+}
+h1 {
+    color: var(--color-text);
+    margin-bottom: 1rem;
+}
+a {
+    color: var(--color-primary);
+}
