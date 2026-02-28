@@ -5,7 +5,6 @@ import {
   signal,
   computed,
 } from '@angular/core';
-import { AsyncPipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TmdbService } from '@media-content/shared-data-access';
@@ -23,10 +22,8 @@ import { ContentDraftService } from './content-draft.service';
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    AsyncPipe,
     RouterLink,
     FormsModule,
-    ButtonComponent,
     TableComponent,
     PaginationComponent,
     HasRoleDirective,

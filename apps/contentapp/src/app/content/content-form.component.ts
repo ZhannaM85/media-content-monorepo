@@ -11,14 +11,13 @@ import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 import { map } from 'rxjs';
 import { TmdbService } from '@media-content/shared-data-access';
-import { ButtonComponent } from '@media-content/shared-ui';
 import { ContentDraftService } from './content-draft.service';
 
 @Component({
   selector: 'app-content-form',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ReactiveFormsModule, RouterLink, ButtonComponent],
+  imports: [ReactiveFormsModule, RouterLink],
   template: `
     <h1>{{ isEdit() ? 'Edit content' : 'New content' }}</h1>
     <form [formGroup]="form" (ngSubmit)="onSubmit()">

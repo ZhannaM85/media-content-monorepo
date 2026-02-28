@@ -1,101 +1,107 @@
-# MediaContentTemp
+# Media Rights Admin Platform
 
-<a alt="Nx logo" href="https://nx.dev" target="_blank" rel="noreferrer"><img src="https://raw.githubusercontent.com/nrwl/nx/master/images/nx-logo.png" width="45"></a>
+A small production-style Angular platform demonstrating **Nx monorepo**, **Module Federation** (micro frontends), shared libraries, and role-based access control. It simulates a simplified media/content rights management platform.
 
-✨ Your new, shiny [Nx workspace](https://nx.dev) is ready ✨.
+## Architecture
 
-[Learn more about this workspace setup and its capabilities](https://nx.dev/getting-started/tutorials/angular-monorepo-tutorial?utm_source=nx_project&amp;utm_medium=readme&amp;utm_campaign=nx_projects) or run `npx nx graph` to visually explore what was created. Now, let's get you up to speed!
+- **admin-shell** (host): Main app with layout, nav, login, and lazy-loaded remotes.
+- **contentapp** (remote): Content list from TMDB API, filter, and create/edit forms (drafts in memory).
+- **rightsapp** (remote): Assign regions, expiration date, and EU/GDPR dynamic form.
 
-## Run tasks
+**Shared libs:**
 
-To run the dev server for your app, use:
+- `shared-types`: Interfaces and enums (Content, Rights, User, Role, Region).
+- `shared-ui`: Reusable components (table, button, input, pagination, SafeUrl pipe).
+- `shared-data-access`: TMDB service, rights store, API tokens.
+- `shared-auth`: Mock JWT auth, HTTP interceptor, guards (auth, role), `*libHasRole` directive.
 
-```sh
-npx nx serve media-content
+**Roles:** `admin` (full access), `editor` (create/edit content and rights), `viewer` (read-only).
+
+## Prerequisites
+
+- Node.js 18+
+- npm (or yarn/pnpm)
+
+## Setup
+
+```bash
+cd media-content-monorepo
+npm install
 ```
 
-To create a production bundle:
+### TMDB API (optional)
 
-```sh
-npx nx build media-content
+For the Content app to load movies, set a TMDB API key:
+
+1. Get a free key at [The Movie Database (TMDB)](https://developer.themoviedb.org/docs/getting-started).
+2. When serving or building, set the key (e.g. in `.env` or shell):
+   - `NX_TMDB_API_KEY=your_key`
+   - Or put it in `apps/admin-shell/src/environments/environment.ts` (do not commit real keys).
+
+Without a key, the content list will show empty or errors when loading from TMDB.
+
+## Run
+
+```bash
+# Serve the host (and remotes) on http://localhost:4200
+npx nx serve admin-shell
 ```
 
-To see all available targets to run for a project, run:
+Then open http://localhost:4200. You will be redirected to `/login`. Log in with any username and role (viewer, editor, admin) to access Content and Rights.
 
-```sh
-npx nx show project media-content
+## Build
+
+```bash
+npx nx build admin-shell
 ```
 
-These targets are either [inferred automatically](https://nx.dev/concepts/inferred-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) or defined in the `project.json` or `package.json` files.
+Output is in `dist/apps/admin-shell`.
 
-[More about running tasks in the docs &raquo;](https://nx.dev/features/run-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+## Test
 
-## Add new projects
+**Unit (Jest):**
 
-While you could add new projects to your workspace manually, you might want to leverage [Nx plugins](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) and their [code generation](https://nx.dev/features/generate-code?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) feature.
-
-Use the plugin's generator to create new projects.
-
-To generate a new application, use:
-
-```sh
-npx nx g @nx/angular:app demo
+```bash
+npx nx run admin-shell:test
+# Or run shared-auth tests from lib folder:
+cd libs/shared-auth && npx jest -c jest.config.cts
 ```
 
-To generate a new library, use:
+**E2E (Playwright):**
 
-```sh
-npx nx g @nx/angular:lib mylib
+```bash
+npx nx run admin-shell-e2e:e2e
 ```
 
-You can use `npx nx list` to get a list of installed plugins. Then, run `npx nx list <plugin-name>` to learn about more specific capabilities of a particular plugin. Alternatively, [install Nx Console](https://nx.dev/getting-started/editor-setup?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) to browse plugins and generators in your IDE.
+E2E covers: redirect to login when unauthenticated, login flow, content page, rights assign flow, and viewer not seeing “Add content”.
 
-[Learn more about Nx plugins &raquo;](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) | [Browse the plugin registry &raquo;](https://nx.dev/plugin-registry?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+## Project structure
 
-## Set up CI!
-
-### Step 1
-
-To connect to Nx Cloud, run the following command:
-
-```sh
-npx nx connect
+```
+apps/
+  admin-shell/     # Host (layout, auth, routes to remotes)
+  contentapp/      # Remote: content list + form
+  rightsapp/       # Remote: rights list + assign form
+libs/
+  shared-ui/
+  shared-types/
+  shared-data-access/
+  shared-auth/
 ```
 
-Connecting to Nx Cloud ensures a [fast and scalable CI](https://nx.dev/ci/intro/why-nx-cloud?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) pipeline. It includes features such as:
+## Decisions
 
-- [Remote caching](https://nx.dev/ci/features/remote-cache?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Task distribution across multiple machines](https://nx.dev/ci/features/distribute-task-execution?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Automated e2e test splitting](https://nx.dev/ci/features/split-e2e-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Task flakiness detection and rerunning](https://nx.dev/ci/features/flaky-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+- **Nx**: Monorepo tooling, Module Federation generators, and clear app/lib boundaries.
+- **Module Federation**: Host loads remotes at runtime; each remote can be built and deployed independently.
+- **TMDB API**: Free, non-commercial API for movie data; content list and detail use it; drafts are stored in memory.
+- **Mock JWT**: No backend; token payload (username, role) is stored in memory/localStorage for demo and RBAC.
 
-### Step 2
+## Optional: CI
 
-Use the following command to configure a CI workflow for your workspace:
+To add CI (e.g. GitHub Actions):
 
-```sh
+```bash
 npx nx g ci-workflow
 ```
 
-[Learn more about Nx on CI](https://nx.dev/ci/intro/ci-with-nx#ready-get-started-with-your-provider?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-## Install Nx Console
-
-Nx Console is an editor extension that enriches your developer experience. It lets you run tasks, generate code, and improves code autocompletion in your IDE. It is available for VSCode and IntelliJ.
-
-[Install Nx Console &raquo;](https://nx.dev/getting-started/editor-setup?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-## Useful links
-
-Learn more:
-
-- [Learn more about this workspace setup](https://nx.dev/getting-started/tutorials/angular-monorepo-tutorial?utm_source=nx_project&amp;utm_medium=readme&amp;utm_campaign=nx_projects)
-- [Learn about Nx on CI](https://nx.dev/ci/intro/ci-with-nx?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Releasing Packages with Nx release](https://nx.dev/features/manage-releases?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [What are Nx plugins?](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-And join the Nx community:
-- [Discord](https://go.nx.dev/community)
-- [Follow us on X](https://twitter.com/nxdevtools) or [LinkedIn](https://www.linkedin.com/company/nrwl)
-- [Our Youtube channel](https://www.youtube.com/@nxdevtools)
-- [Our blog](https://nx.dev/blog?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+Then add steps: `npm ci`, `npx nx run-many -t lint`, `npx nx run-many -t test`, `npx nx build admin-shell`, and optionally `npx nx run admin-shell-e2e:e2e`.

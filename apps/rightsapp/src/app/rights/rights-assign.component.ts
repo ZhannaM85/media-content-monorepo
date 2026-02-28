@@ -5,7 +5,6 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { map } from 'rxjs';
 import { RightsStoreService } from '@media-content/shared-data-access';
 import type { Region } from '@media-content/shared-types';
-import { HasRoleDirective } from '@media-content/shared-auth';
 
 const REGIONS: Region[] = ['US', 'EU', 'APAC'];
 
@@ -13,7 +12,7 @@ const REGIONS: Region[] = ['US', 'EU', 'APAC'];
   selector: 'app-rights-assign',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ReactiveFormsModule, RouterLink, HasRoleDirective],
+  imports: [ReactiveFormsModule, RouterLink],
   templateUrl: './rights-assign.component.html',
   styleUrl: './rights-assign.component.scss',
 })
