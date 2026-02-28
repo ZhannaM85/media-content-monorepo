@@ -37,7 +37,7 @@ jobs:
         run: node scripts/inject-env.js
 
       - name: Build
-        run: npx nx build admin-shell
+        run: npx nx build admin-shell --base-href /media-content-monorepo/
 
       - name: Generate build.txt
         run: |
