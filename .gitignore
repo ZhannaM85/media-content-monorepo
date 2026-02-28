@@ -24,6 +24,11 @@ node_modules
 !.vscode/launch.json
 !.vscode/extensions.json
 
+# Local env files (API keys, secrets)
+.env
+.env.local
+.env.*.local
+
 # misc
 /.sass-cache
 /connect.lock
@@ -44,3 +49,5 @@ Thumbs.db
 .angular
 
 __screenshots__/
+
+

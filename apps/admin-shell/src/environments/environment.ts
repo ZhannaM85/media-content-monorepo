@@ -1,4 +1,4 @@
-/** Set NX_TMDB_API_KEY when serving/building to use TMDB API. */
+/** Set NX_TMDB_API_KEY when serving/building to use TMDB API. Do not commit real keys. */
 export const environment = {
   tmdbApiKey: '',
 };
