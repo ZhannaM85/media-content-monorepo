@@ -2,7 +2,10 @@
   "name": "@media-content/source",
   "version": "0.0.0",
   "license": "MIT",
-  "scripts": {},
+  "scripts": {
+    "start": "nx serve admin-shell",
+    "build": "nx build admin-shell"
+  },
   "private": true,
   "dependencies": {
     "@angular-devkit/build-angular": "~21.1.0",
