@@ -21,7 +21,7 @@ export class RightsListComponent {
         { key: 'contentId', label: 'Content ID' },
         { key: 'regions', label: 'Regions' },
         { key: 'expirationDate', label: 'Expiration' },
-        { key: 'gdpr', label: 'GDPR' },
-        { key: 'actions', label: 'Actions' },
+        { key: 'gdpr', label: 'GDPR', align: 'center' as const  },
+        { key: 'actions', label: 'Actions', align: 'center' as const },
     ];
 }
