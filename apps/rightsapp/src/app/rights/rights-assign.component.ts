@@ -4,12 +4,16 @@ import {
     inject,
     computed,
     effect,
+    signal,
 } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { map } from 'rxjs';
-import { RightsStoreService } from '@media-content/shared-data-access';
+import {
+    RightsStoreService,
+    TmdbService,
+} from '@media-content/shared-data-access';
 import type { Region } from '@media-content/shared-types';
 
 const REGIONS: Region[] = ['US', 'EU', 'APAC'];
@@ -27,6 +31,7 @@ export class RightsAssignComponent {
     private readonly router = inject(Router);
     private readonly route = inject(ActivatedRoute);
     private readonly rightsStore = inject(RightsStoreService);
+    private readonly tmdb = inject(TmdbService);
 
     regions = REGIONS;
     form = this.fb.group({
@@ -40,6 +45,9 @@ export class RightsAssignComponent {
         this.route.paramMap.pipe(map((p) => p.get('contentId'))),
     );
     contentId = computed(() => this.routeContentId() ?? null);
+
+    /** Display info for the content (ID + title) when editing existing rights */
+    contentDisplay = signal<{ id: string; title: string } | null>(null);
 
     includesEu = computed(() => {
         const r = this.form.get('regions')?.value as Region[] | undefined;
@@ -58,6 +66,29 @@ export class RightsAssignComponent {
                 gdpr.setValue(false);
             }
             gdpr.updateValueAndValidity();
+        });
+
+        effect(() => {
+            const id = this.contentId();
+            if (!id || id === 'new') {
+                this.contentDisplay.set(null);
+                return;
+            }
+            this.contentDisplay.set({ id, title: '…' });
+            const numId = Number(id);
+            if (!Number.isNaN(numId)) {
+                this.tmdb.getMovie(numId).subscribe({
+                    next: (m) =>
+                        this.contentDisplay.set({
+                            id,
+                            title: m.title ?? '—',
+                        }),
+                    error: () =>
+                        this.contentDisplay.set({ id, title: '(load failed)' }),
+                });
+            } else {
+                this.contentDisplay.set({ id, title: '(Draft)' });
+            }
         });
     }
 
@@ -86,6 +117,6 @@ export class RightsAssignComponent {
             expirationDate: value.expirationDate ?? '',
             gdprAcknowledged: value.gdprAcknowledged ?? false,
         });
-        this.router.navigate(['..'], { relativeTo: this.route });
+        this.router.navigate(['/rights']);
     }
 }

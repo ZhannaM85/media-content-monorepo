@@ -1,4 +1,10 @@
 <h1>Assign rights</h1>
+@if (contentDisplay(); as info) {
+    <p class="content-info">
+        <strong>Content ID:</strong> {{ info.id }} &nbsp;|&nbsp;
+        <strong>Title:</strong> {{ info.title }}
+    </p>
+}
 <form [formGroup]="form" (ngSubmit)="onSubmit()">
     @if (contentId() === 'new' || !contentId()) {
         <div>
@@ -52,6 +58,6 @@
     }
     <div class="actions">
         <button type="submit" [disabled]="form.invalid">Save</button>
-        <a routerLink="..">Cancel</a>
+        <a routerLink="/rights">Cancel</a>
     </div>
 </form>

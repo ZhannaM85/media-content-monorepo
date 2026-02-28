@@ -2,9 +2,13 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, map } from 'rxjs';
 import type { Rights } from '@media-content/shared-types';
 
+const RIGHTS_STORAGE_KEY = 'media-content-rights';
+
 @Injectable({ providedIn: 'root' })
 export class RightsStoreService {
-    private readonly rights$ = new BehaviorSubject<Rights[]>([]);
+    private readonly rights$ = new BehaviorSubject<Rights[]>(
+        this.loadFromStorage(),
+    );
 
     getRights(): Observable<Rights[]> {
         return this.rights$.asObservable();
@@ -32,9 +36,36 @@ export class RightsStoreService {
                 ? [...list.slice(0, index), rights, ...list.slice(index + 1)]
                 : [...list, rights];
         this.rights$.next(next);
+        this.persist(next);
     }
 
     removeRights(id: string): void {
-        this.rights$.next(this.rights$.value.filter((r) => r.id !== id));
+        const next = this.rights$.value.filter((r) => r.id !== id);
+        this.rights$.next(next);
+        this.persist(next);
+    }
+
+    private loadFromStorage(): Rights[] {
+        try {
+            const raw = sessionStorage.getItem(RIGHTS_STORAGE_KEY);
+            if (raw) {
+                const parsed = JSON.parse(raw) as Rights[];
+                return Array.isArray(parsed) ? parsed : [];
+            }
+        } catch {
+            // ignore invalid or missing data
+        }
+        return [];
+    }
+
+    private persist(rights: Rights[]): void {
+        try {
+            sessionStorage.setItem(
+                RIGHTS_STORAGE_KEY,
+                JSON.stringify(rights),
+            );
+        } catch {
+            // ignore quota or security errors
+        }
     }
 }
