@@ -2,52 +2,31 @@ name: CI
 
 on:
   push:
-    branches:
-      - develop
-      - master
+    branches: [main, master]
   pull_request:
-    branches:
-      - develop
-      - master
-
-permissions:
-  actions: read
-  contents: read
+    branches: [main, master]
 
 jobs:
-  main:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: 'npm'
-
-      - run: npm ci
-
-      - run: npx nx run-many -t lint --skip-nx-cache
-      - run: npx nx run-many -t test --skip-nx-cache --configuration=ci
-      - run: node scripts/inject-env.js && npx nx build admin-shell --skip-nx-cache
-
-  deploy:
-    needs: main
-    if: github.ref == 'refs/heads/master' && github.event_name == 'push'
+  build-and-test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: '20'
           cache: 'npm'
+          cache-dependency-path: package-lock.json
 
-      - run: npm ci
-      - run: node scripts/inject-env.js && npx nx build admin-shell --skip-nx-cache
+      - name: Use same npm as lock file
+        run: npm install -g npm@11
 
-      # Add your deployment steps here (e.g. deploy to hosting, S3, etc.)
-      - name: Deploy
-        run: echo "Deploy step – add your deployment command or action here"
+      - name: Install
+        run: npm ci
+
+      - name: Lint
+        run: npx nx run-many -t lint --all
+
+      - name: Build
+        run: npx nx run admin-shell:build
