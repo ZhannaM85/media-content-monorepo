@@ -1,4 +1,4 @@
-import { Injectable, Inject } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
 import type {
@@ -19,11 +19,9 @@ export interface DiscoverMoviesParams {
 
 @Injectable({ providedIn: 'root' })
 export class TmdbService {
-    constructor(
-        private readonly http: HttpClient,
-        @Inject(TMDB_API_BASE) private readonly baseUrl: string,
-        @Inject(TMDB_API_KEY) private readonly apiKey: string,
-    ) {}
+    private readonly http = inject(HttpClient);
+    private readonly baseUrl = inject(TMDB_API_BASE);
+    private readonly apiKey = inject(TMDB_API_KEY);
 
     discoverMovies(params: DiscoverMoviesParams = {}): Observable<{
         page: number;
