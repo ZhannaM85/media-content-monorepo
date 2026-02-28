@@ -2,5 +2,5 @@
 import { env } from './environment.generated';
 
 export const environment = {
-  tmdbApiKey: env.NX_TMDB_API_KEY,
+    tmdbApiKey: env.NX_TMDB_API_KEY,
 };

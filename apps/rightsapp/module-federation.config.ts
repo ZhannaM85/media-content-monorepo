@@ -1,10 +1,10 @@
 import { ModuleFederationConfig } from '@nx/module-federation';
 
 const config: ModuleFederationConfig = {
-  name: 'rightsapp',
-  exposes: {
-    './Routes': 'apps/rightsapp/src/app/remote-entry/entry.routes.ts',
-  },
+    name: 'rightsapp',
+    exposes: {
+        './Routes': 'apps/rightsapp/src/app/remote-entry/entry.routes.ts',
+    },
 };
 
 /**

@@ -1,12 +1,12 @@
 <table class="lib-table">
-  <thead>
-    <tr>
-      @for (col of columns(); track col.key) {
-        <th>{{ col.label }}</th>
-      }
-    </tr>
-  </thead>
-  <tbody>
-    <ng-content></ng-content>
-  </tbody>
+    <thead>
+        <tr>
+            @for (col of columns(); track col.key) {
+                <th>{{ col.label }}</th>
+            }
+        </tr>
+    </thead>
+    <tbody>
+        <ng-content></ng-content>
+    </tbody>
 </table>

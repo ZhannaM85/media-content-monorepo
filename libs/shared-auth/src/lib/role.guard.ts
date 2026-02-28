@@ -4,10 +4,10 @@ import type { Role } from '@media-content/shared-types';
 import { AuthService } from './auth.service';
 
 export function roleGuard(minRole: Role): CanActivateFn {
-  return () => {
-    const auth = inject(AuthService);
-    const router = inject(Router);
-    if (auth.hasRole(minRole)) return true;
-    return router.createUrlTree(['/content']);
-  };
+    return () => {
+        const auth = inject(AuthService);
+        const router = inject(Router);
+        if (auth.hasRole(minRole)) return true;
+        return router.createUrlTree(['/content']);
+    };
 }

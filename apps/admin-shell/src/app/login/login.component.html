@@ -1,19 +1,24 @@
 <div class="login-box">
-  <h1>Media Rights Admin</h1>
-  <p>Sign in (mock)</p>
-  <form (ngSubmit)="onSubmit()">
-    <div>
-      <label for="username">Username</label>
-      <input id="username" name="username" [(ngModel)]="username" required />
-    </div>
-    <div>
-      <label for="role">Role</label>
-      <select id="role" name="role" [(ngModel)]="role" required>
-        <option value="viewer">Viewer</option>
-        <option value="editor">Editor</option>
-        <option value="admin">Admin</option>
-      </select>
-    </div>
-    <button type="submit">Login</button>
-  </form>
+    <h1>Media Rights Admin</h1>
+    <p>Sign in (mock)</p>
+    <form (ngSubmit)="onSubmit()">
+        <div>
+            <label for="username">Username</label>
+            <input
+                id="username"
+                name="username"
+                [(ngModel)]="username"
+                required
+            />
+        </div>
+        <div>
+            <label for="role">Role</label>
+            <select id="role" name="role" [(ngModel)]="role" required>
+                <option value="viewer">Viewer</option>
+                <option value="editor">Editor</option>
+                <option value="admin">Admin</option>
+            </select>
+        </div>
+        <button type="submit">Login</button>
+    </form>
 </div>

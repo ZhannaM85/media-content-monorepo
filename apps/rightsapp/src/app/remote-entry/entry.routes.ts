@@ -4,10 +4,10 @@ import { RightsListComponent } from '../rights/rights-list.component';
 import { RightsAssignComponent } from '../rights/rights-assign.component';
 
 export const remoteRoutes: Route[] = [
-  { path: '', component: RightsListComponent },
-  {
-    path: 'assign/:contentId',
-    component: RightsAssignComponent,
-    canActivate: [roleGuard('editor')],
-  },
+    { path: '', component: RightsListComponent },
+    {
+        path: 'assign/:contentId',
+        component: RightsAssignComponent,
+        canActivate: [roleGuard('editor')],
+    },
 ];

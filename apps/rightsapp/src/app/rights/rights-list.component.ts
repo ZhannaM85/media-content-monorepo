@@ -6,22 +6,22 @@ import { TableComponent } from '@media-content/shared-ui';
 import { HasRoleDirective } from '@media-content/shared-auth';
 
 @Component({
-  selector: 'app-rights-list',
-  standalone: true,
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [AsyncPipe, RouterLink, TableComponent, HasRoleDirective],
-  templateUrl: './rights-list.component.html',
-  styleUrl: './rights-list.component.scss',
+    selector: 'app-rights-list',
+    standalone: true,
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    imports: [AsyncPipe, RouterLink, TableComponent, HasRoleDirective],
+    templateUrl: './rights-list.component.html',
+    styleUrl: './rights-list.component.scss',
 })
 export class RightsListComponent {
-  private readonly rightsStore = inject(RightsStoreService);
-  rights$ = this.rightsStore.getRights();
+    private readonly rightsStore = inject(RightsStoreService);
+    rights$ = this.rightsStore.getRights();
 
-  columns = [
-    { key: 'contentId', label: 'Content ID' },
-    { key: 'regions', label: 'Regions' },
-    { key: 'expirationDate', label: 'Expiration' },
-    { key: 'gdpr', label: 'GDPR' },
-    { key: 'actions', label: 'Actions' },
-  ];
+    columns = [
+        { key: 'contentId', label: 'Content ID' },
+        { key: 'regions', label: 'Regions' },
+        { key: 'expirationDate', label: 'Expiration' },
+        { key: 'gdpr', label: 'GDPR' },
+        { key: 'actions', label: 'Actions' },
+    ];
 }

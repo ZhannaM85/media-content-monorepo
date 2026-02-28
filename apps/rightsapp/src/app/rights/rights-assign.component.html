@@ -1,42 +1,57 @@
 <h1>Assign rights</h1>
 <form [formGroup]="form" (ngSubmit)="onSubmit()">
-  @if (contentId() === 'new' || !contentId()) {
-    <div>
-      <label for="cid">Content ID</label>
-      <input id="cid" type="text" formControlName="contentIdInput" placeholder="e.g. 123 or draft-1" />
-    </div>
-  }
-  <div>
-    <label>Regions</label>
-    <div class="checkboxes">
-      @for (r of regions; track r) {
-        <label>
-          <input type="checkbox" [value]="r" (change)="onRegionChange(r, $event)" />
-          {{ r }}
-        </label>
-      }
-    </div>
-  </div>
-  <div>
-    <label for="exp">Expiration date</label>
-    <input id="exp" type="date" formControlName="expirationDate" />
-    @if (form.get('expirationDate')?.invalid && form.get('expirationDate')?.touched) {
-      <span class="error">Required</span>
+    @if (contentId() === 'new' || !contentId()) {
+        <div>
+            <label for="cid">Content ID</label>
+            <input
+                id="cid"
+                type="text"
+                formControlName="contentIdInput"
+                placeholder="e.g. 123 or draft-1"
+            />
+        </div>
     }
-  </div>
-  @if (includesEu()) {
     <div>
-      <label>
-        <input type="checkbox" formControlName="gdprAcknowledged" />
-        GDPR compliance acknowledged (required for EU)
-      </label>
-      @if (form.get('gdprAcknowledged')?.invalid && form.get('gdprAcknowledged')?.touched) {
-        <span class="error">Required when EU is selected</span>
-      }
+        <label>Regions</label>
+        <div class="checkboxes">
+            @for (r of regions; track r) {
+                <label>
+                    <input
+                        type="checkbox"
+                        [value]="r"
+                        (change)="onRegionChange(r, $event)"
+                    />
+                    {{ r }}
+                </label>
+            }
+        </div>
     </div>
-  }
-  <div class="actions">
-    <button type="submit" [disabled]="form.invalid">Save</button>
-    <a routerLink="..">Cancel</a>
-  </div>
+    <div>
+        <label for="exp">Expiration date</label>
+        <input id="exp" type="date" formControlName="expirationDate" />
+        @if (
+            form.get('expirationDate')?.invalid &&
+            form.get('expirationDate')?.touched
+        ) {
+            <span class="error">Required</span>
+        }
+    </div>
+    @if (includesEu()) {
+        <div>
+            <label>
+                <input type="checkbox" formControlName="gdprAcknowledged" />
+                GDPR compliance acknowledged (required for EU)
+            </label>
+            @if (
+                form.get('gdprAcknowledged')?.invalid &&
+                form.get('gdprAcknowledged')?.touched
+            ) {
+                <span class="error">Required when EU is selected</span>
+            }
+        </div>
+    }
+    <div class="actions">
+        <button type="submit" [disabled]="form.invalid">Save</button>
+        <a routerLink="..">Cancel</a>
+    </div>
 </form>
