@@ -1,4 +1,5 @@
 import { withModuleFederation } from '@nx/module-federation/angular';
+import type { Configuration } from 'webpack';
 import config from './module-federation.config';
 
 /**
@@ -6,7 +7,7 @@ import config from './module-federation.config';
  * The DTS Plugin can be enabled by setting dts: true
  * Learn more about the DTS Plugin here: https://module-federation.io/configure/dts.html
  */
-export default withModuleFederation(
+const baseConfig = withModuleFederation(
   {
     ...config,
     /*
@@ -21,4 +22,12 @@ export default withModuleFederation(
      */
   },
   { dts: false },
-);
+) as Configuration;
+
+export default {
+  ...baseConfig,
+  output: {
+    ...baseConfig.output,
+    scriptType: 'module' as const,
+  },
+};

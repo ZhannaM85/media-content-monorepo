@@ -5,6 +5,7 @@ import {
   signal,
   computed,
   effect,
+  type Signal,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
@@ -118,10 +119,7 @@ export class ContentFormComponent {
     releaseDate: [''],
   });
 
-  private routeId = toSignal(
-    inject(ActivatedRoute).paramMap.pipe(map((p) => p.get('id'))),
-    { initialValue: null as string | null }
-  );
+  private routeId!: Signal<string | null>;
   id = computed(() => this.routeId());
   isEdit = computed(() => !!this.id());
   isDraft = signal(false);
@@ -133,6 +131,10 @@ export class ContentFormComponent {
   });
 
   constructor() {
+    this.routeId = toSignal(
+      this.route.paramMap.pipe(map((p) => p.get('id'))),
+      { initialValue: null as string | null }
+    );
     effect(() => {
       const id = this.id();
       if (!id) return;
