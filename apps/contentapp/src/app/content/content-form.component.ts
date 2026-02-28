@@ -53,24 +53,55 @@ import { ContentDraftService } from './content-draft.service';
       label {
         display: block;
         margin-bottom: 0.25rem;
+        color: var(--color-text);
+        font-weight: 500;
       }
       textarea,
-      input[type='date'] {
+      input[type='date'],
+      input[type='text'] {
         width: 100%;
-        padding: 0.5rem;
+        padding: 0.5rem 0.75rem;
         margin-bottom: 1rem;
         box-sizing: border-box;
+        border: 1px solid var(--color-input-border);
+        border-radius: 4px;
+        background: var(--color-surface);
+        color: var(--color-text);
+      }
+      textarea:focus,
+      input:focus {
+        outline: none;
+        border-color: var(--color-input-focus);
       }
       .actions {
         display: flex;
         gap: 1rem;
         margin-top: 1rem;
       }
+      .actions button {
+        padding: 0.5rem 1rem;
+        background: var(--color-button-primary-bg);
+        color: white;
+        border: none;
+        border-radius: var(--radius);
+        cursor: pointer;
+      }
+      .actions button:hover:not(:disabled) {
+        background: var(--color-button-primary-hover);
+      }
+      .actions button[type='button'] {
+        background: var(--color-danger);
+      }
+      .actions a {
+        color: var(--color-primary);
+      }
       .error {
-        color: #d32f2f;
+        color: var(--color-danger);
         font-size: 0.875rem;
       }
-      input { width: 100%; padding: 0.5rem; margin-bottom: 0.5rem; box-sizing: border-box; }
+      h1 {
+        color: var(--color-text);
+      }
     `,
   ],
 })

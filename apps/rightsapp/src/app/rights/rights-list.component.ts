@@ -34,11 +34,22 @@ import { HasRoleDirective } from '@media-content/shared-auth';
       .btn {
         display: inline-block;
         padding: 0.5rem 1rem;
-        background: #1976d2;
+        background: var(--color-button-primary-bg);
         color: white;
         text-decoration: none;
-        border-radius: 4px;
+        border-radius: var(--radius);
         margin-bottom: 1rem;
+        font-weight: 500;
+      }
+      .btn:hover {
+        background: var(--color-button-primary-hover);
+      }
+      h1 {
+        color: var(--color-text);
+        margin-bottom: 1rem;
+      }
+      a {
+        color: var(--color-primary);
       }
     `,
   ],

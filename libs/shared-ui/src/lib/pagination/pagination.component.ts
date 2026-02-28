@@ -36,9 +36,13 @@ import { ChangeDetectionStrategy, Component, input, output } from '@angular/core
       .pagination button {
         padding: 0.5rem 1rem;
         cursor: pointer;
-        border: 1px solid #ccc;
-        border-radius: 4px;
-        background: #fff;
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius);
+        background: var(--color-surface);
+        color: var(--color-text);
+      }
+      .pagination button:hover:not(:disabled) {
+        background: var(--color-table-row-hover);
       }
       .pagination button:disabled {
         opacity: 0.5;
@@ -46,7 +50,7 @@ import { ChangeDetectionStrategy, Component, input, output } from '@angular/core
       }
       .page-info {
         font-size: 0.875rem;
-        color: #666;
+        color: var(--color-text-secondary);
       }
     `,
   ],

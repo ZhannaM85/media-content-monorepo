@@ -1,1 +1,109 @@
-/* You can add global styles to this file, and also import other style files */
+// ──────────────────────────────────────────────
+// Design tokens (same pattern as dcim-portal-app)
+// ──────────────────────────────────────────────
+:root,
+body.theme-light {
+  --color-bg: #f1f5f9;
+  --color-surface: #ffffff;
+  --color-border: #e2e8f0;
+  --color-text: #1e293b;
+  --color-text-secondary: #64748b;
+  --color-primary: #4a90e2;
+  --color-primary-hover: #3a7bd5;
+  --color-success: #22c55e;
+  --color-warning: #f59e0b;
+  --color-danger: #ef4444;
+  --color-info: #3b82f6;
+  --radius: 8px;
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+
+  --color-header-bg: #1e293b;
+  --color-header-text: #f8fafc;
+  --color-header-subtitle: #94a3b8;
+
+  --color-table-header-bg: #f8fafc;
+  --color-table-row-hover: #f1f5f9;
+  --color-table-border: #e2e8f0;
+
+  --color-input-border: #e2e8f0;
+  --color-input-focus: #4a90e2;
+  --color-button-primary-bg: #4a90e2;
+  --color-button-primary-hover: #3a7bd5;
+  --color-button-secondary-bg: #f1f5f9;
+  --color-button-secondary-text: #1e293b;
+}
+
+// ──────────────────────────────────────────────
+// Theme: Dark
+// ──────────────────────────────────────────────
+body.theme-dark {
+  --color-bg: #0f172a;
+  --color-surface: #1e293b;
+  --color-border: #334155;
+  --color-text: #e2e8f0;
+  --color-text-secondary: #94a3b8;
+  --color-primary: #38bdf8;
+  --color-primary-hover: #7dd3fc;
+  --color-success: #4ade80;
+  --color-warning: #fbbf24;
+  --color-danger: #f87171;
+  --color-info: #60a5fa;
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -2px rgba(0, 0, 0, 0.3);
+
+  --color-header-bg: #020617;
+  --color-header-text: #e2e8f0;
+  --color-header-subtitle: #64748b;
+
+  --color-table-header-bg: #1e293b;
+  --color-table-row-hover: #253349;
+  --color-table-border: #334155;
+
+  --color-input-border: #475569;
+  --color-input-focus: #38bdf8;
+  --color-button-primary-bg: #38bdf8;
+  --color-button-primary-hover: #7dd3fc;
+  --color-button-secondary-bg: #334155;
+  --color-button-secondary-text: #e2e8f0;
+}
+
+// ──────────────────────────────────────────────
+// Global resets & base (same pattern as dcim-portal-app / ui-kit)
+// ──────────────────────────────────────────────
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+a {
+  color: var(--color-primary);
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+    color: var(--color-primary-hover);
+  }
+}

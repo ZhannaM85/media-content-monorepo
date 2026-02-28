@@ -33,34 +33,59 @@ import type { Role } from '@media-content/shared-types';
   styles: [
     `
       .login-box {
-        max-width: 320px;
+        max-width: 360px;
         margin: 2rem auto;
         padding: 1.5rem;
-        border: 1px solid #ccc;
-        border-radius: 8px;
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius);
+        background: var(--color-surface);
+        box-shadow: var(--shadow-md);
       }
       .login-box h1 {
         margin-top: 0;
+        margin-bottom: 0.25rem;
+        color: var(--color-text);
+      }
+      .login-box p {
+        color: var(--color-text-secondary);
+        margin-bottom: 1rem;
       }
       .login-box label {
         display: block;
         margin-bottom: 0.25rem;
+        color: var(--color-text);
+        font-weight: 500;
       }
       .login-box input,
       .login-box select {
         width: 100%;
-        padding: 0.5rem;
+        padding: 0.5rem 0.75rem;
         margin-bottom: 1rem;
         box-sizing: border-box;
+        border: 1px solid var(--color-input-border);
+        border-radius: 4px;
+        background: var(--color-surface);
+        color: var(--color-text);
+        font-size: 1rem;
+      }
+      .login-box input:focus,
+      .login-box select:focus {
+        outline: none;
+        border-color: var(--color-input-focus);
       }
       .login-box button {
         width: 100%;
-        padding: 0.5rem;
-        background: #1976d2;
+        padding: 0.6rem;
+        background: var(--color-button-primary-bg);
         color: white;
         border: none;
         border-radius: 4px;
         cursor: pointer;
+        font-size: 1rem;
+        font-weight: 500;
+      }
+      .login-box button:hover {
+        background: var(--color-button-primary-hover);
       }
     `,
   ],

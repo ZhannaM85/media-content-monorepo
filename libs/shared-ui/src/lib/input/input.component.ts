@@ -30,22 +30,24 @@ import { FormsModule } from '@angular/forms';
         font-weight: 500;
       }
       label.has-error {
-        color: #d32f2f;
+        color: var(--color-danger);
       }
       input {
         width: 100%;
-        padding: 0.5rem;
-        border: 1px solid #ccc;
+        padding: 0.5rem 0.75rem;
+        border: 1px solid var(--color-input-border);
         border-radius: 4px;
         font-size: 1rem;
+        background: var(--color-surface);
+        color: var(--color-text);
       }
       input:focus {
         outline: none;
-        border-color: #1976d2;
+        border-color: var(--color-input-focus);
       }
       .error {
         display: block;
-        color: #d32f2f;
+        color: var(--color-danger);
         font-size: 0.875rem;
         margin-top: 0.25rem;
       }

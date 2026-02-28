@@ -74,10 +74,28 @@ import { ContentDraftService } from './content-draft.service';
       }
       .btn {
         padding: 0.5rem 1rem;
-        background: #1976d2;
+        background: var(--color-button-primary-bg);
         color: white;
         text-decoration: none;
+        border-radius: var(--radius);
+        font-weight: 500;
+      }
+      .btn:hover {
+        background: var(--color-button-primary-hover);
+      }
+      select {
+        padding: 0.5rem 0.75rem;
+        border: 1px solid var(--color-input-border);
         border-radius: 4px;
+        background: var(--color-surface);
+        color: var(--color-text);
+      }
+      h1 {
+        color: var(--color-text);
+        margin-bottom: 1rem;
+      }
+      a {
+        color: var(--color-primary);
       }
     `,
   ],

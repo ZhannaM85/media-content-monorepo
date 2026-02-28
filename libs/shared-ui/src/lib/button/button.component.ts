@@ -11,23 +11,28 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
     `
       button {
         padding: 0.5rem 1rem;
-        border-radius: 4px;
+        border-radius: var(--radius);
         cursor: pointer;
         font-size: 1rem;
-        border: 1px solid #ccc;
+        border: 1px solid var(--color-border);
+        background: var(--color-button-secondary-bg);
+        color: var(--color-button-secondary-text);
       }
       button:disabled {
         opacity: 0.6;
         cursor: not-allowed;
       }
       button.primary {
-        background: #1976d2;
+        background: var(--color-button-primary-bg);
         color: white;
-        border-color: #1976d2;
+        border-color: var(--color-button-primary-bg);
       }
-      button.secondary {
-        background: #f5f5f5;
-        color: #333;
+      button.primary:hover:not(:disabled) {
+        background: var(--color-button-primary-hover);
+        border-color: var(--color-button-primary-hover);
+      }
+      button.secondary:hover:not(:disabled) {
+        background: var(--color-table-row-hover);
       }
     `,
   ],
