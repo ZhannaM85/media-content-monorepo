@@ -34,6 +34,8 @@ jobs:
         run: npm run lint
 
       - name: Inject environment
+        env:
+          NX_TMDB_API_KEY: ${{ secrets.NX_TMDB_API_KEY }}
         run: node scripts/inject-env.js
 
       - name: Build
