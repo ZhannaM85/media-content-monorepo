@@ -9,7 +9,6 @@ import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TmdbService } from '@media-content/shared-data-access';
 import {
-  ButtonComponent,
   TableComponent,
   PaginationComponent,
 } from '@media-content/shared-ui';
@@ -53,7 +52,7 @@ import { ContentDraftService } from './content-draft.service';
                 <div class="poster-placeholder">No image</div>
               }
             </td>
-            <td>{{ item.title }}</td>
+            <td class="title-cell">{{ item.title }}</td>
             <td>{{ item.releaseDate || '—' }}</td>
             <td>{{ item.voteAverage ?? '—' }}</td>
             <td>
@@ -97,10 +96,18 @@ import { ContentDraftService } from './content-draft.service';
         background: var(--color-surface);
         color: var(--color-text);
       }
+      :host ::ng-deep .lib-table th:first-child {
+        padding: 0.75rem 0.35rem;
+        width: 52px;
+      }
       .poster-cell {
         width: 52px;
         padding: 0.35rem !important;
         vertical-align: middle;
+      }
+      .title-cell,
+      .content-cell {
+        padding-left: 1.25rem;
       }
       .poster-thumb {
         width: 46px;

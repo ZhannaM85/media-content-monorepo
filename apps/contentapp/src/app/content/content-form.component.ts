@@ -21,12 +21,8 @@ import { ContentDraftService } from './content-draft.service';
   imports: [ReactiveFormsModule, RouterLink],
   template: `
     <h1>{{ isEdit() ? 'Edit content' : 'New content' }}</h1>
-    @if (posterUrl()) {
-      <div class="poster-wrap">
-        <img [src]="posterUrl()" alt="Poster" class="poster-large" />
-      </div>
-    }
-    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+    <div class="layout">
+      <form [formGroup]="form" (ngSubmit)="onSubmit()">
       <div>
         <label for="title">Title</label>
         <input id="title" type="text" formControlName="title" />
@@ -50,10 +46,23 @@ import { ContentDraftService } from './content-draft.service';
         <a routerLink="../..">Cancel</a>
       </div>
     </form>
+      @if (posterUrl()) {
+        <div class="poster-wrap">
+          <img [src]="posterUrl()" alt="Poster" class="poster-large" />
+        </div>
+      }
+    </div>
   `,
   styles: [
     `
+      .layout {
+        display: flex;
+        gap: 2rem;
+        align-items: flex-start;
+      }
       form {
+        flex: 1;
+        min-width: 0;
         max-width: 480px;
       }
       label {
@@ -109,7 +118,7 @@ import { ContentDraftService } from './content-draft.service';
         color: var(--color-text);
       }
       .poster-wrap {
-        margin-bottom: 1rem;
+        flex-shrink: 0;
       }
       .poster-large {
         width: 200px;
