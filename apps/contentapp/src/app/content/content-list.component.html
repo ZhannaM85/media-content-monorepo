@@ -1,0 +1,41 @@
+<h1>Content</h1>
+<div class="toolbar">
+  <select [ngModel]="filterStatus()" (ngModelChange)="onFilterChange($event)">
+    <option value="all">All</option>
+    <option value="tmdb">From TMDB</option>
+    <option value="draft">Drafts</option>
+  </select>
+  <span *libHasRole="'editor'">
+    <a routerLink="new" class="btn">Add content</a>
+  </span>
+</div>
+@if (loading()) {
+  <p>Loading…</p>
+} @else {
+  <lib-table [columns]="columns">
+    @for (item of list(); track trackById($index, item)) {
+      <tr>
+        <td class="poster-cell">
+          @if (item.posterPath) {
+            <img [src]="item.posterPath" [alt]="item.title" class="poster-thumb" loading="lazy" />
+          } @else {
+            <div class="poster-placeholder">No image</div>
+          }
+        </td>
+        <td class="title-cell">{{ item.title }}</td>
+        <td>{{ item.releaseDate || '—' }}</td>
+        <td>{{ item.voteAverage ?? '—' }}</td>
+        <td>
+          <a [routerLink]="[item.id, 'edit']">Edit</a>
+        </td>
+      </tr>
+    }
+  </lib-table>
+  @if (filterStatus() !== 'draft' && totalPages() > 0) {
+    <lib-pagination
+      [currentPage]="currentPage()"
+      [totalPages]="totalPages()"
+      (pageChange)="goToPage($event)"
+    />
+  }
+}

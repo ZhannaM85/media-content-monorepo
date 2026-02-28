@@ -10,49 +10,8 @@ import { HasRoleDirective } from '@media-content/shared-auth';
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [AsyncPipe, RouterLink, TableComponent, HasRoleDirective],
-  template: `
-    <h1>Rights</h1>
-    <p *libHasRole="'editor'">
-      <a routerLink="assign/new" class="btn">Assign rights (new)</a>
-    </p>
-    <lib-table [columns]="columns">
-      @for (r of rights$ | async; track r.id) {
-        <tr>
-          <td>{{ r.contentId }}</td>
-          <td>{{ r.regions.join(', ') }}</td>
-          <td>{{ r.expirationDate }}</td>
-          <td>{{ r.gdprAcknowledged ? 'Yes' : '—' }}</td>
-          <td>
-            <a [routerLink]="['assign', r.contentId]">Edit</a>
-          </td>
-        </tr>
-      }
-    </lib-table>
-  `,
-  styles: [
-    `
-      .btn {
-        display: inline-block;
-        padding: 0.5rem 1rem;
-        background: var(--color-button-primary-bg);
-        color: white;
-        text-decoration: none;
-        border-radius: var(--radius);
-        margin-bottom: 1rem;
-        font-weight: 500;
-      }
-      .btn:hover {
-        background: var(--color-button-primary-hover);
-      }
-      h1 {
-        color: var(--color-text);
-        margin-bottom: 1rem;
-      }
-      a {
-        color: var(--color-primary);
-      }
-    `,
-  ],
+  templateUrl: './rights-list.component.html',
+  styleUrl: './rights-list.component.scss',
 })
 export class RightsListComponent {
   private readonly rightsStore = inject(RightsStoreService);

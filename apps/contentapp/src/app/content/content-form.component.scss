@@ -1,0 +1,72 @@
+.layout {
+  display: flex;
+  gap: 2rem;
+  align-items: flex-start;
+}
+form {
+  flex: 1;
+  min-width: 0;
+  max-width: 480px;
+}
+label {
+  display: block;
+  margin-bottom: 0.25rem;
+  color: var(--color-text);
+  font-weight: 500;
+}
+textarea,
+input[type='date'],
+input[type='text'] {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  margin-bottom: 1rem;
+  box-sizing: border-box;
+  border: 1px solid var(--color-input-border);
+  border-radius: 4px;
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+textarea:focus,
+input:focus {
+  outline: none;
+  border-color: var(--color-input-focus);
+}
+.actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+.actions button {
+  padding: 0.5rem 1rem;
+  background: var(--color-button-primary-bg);
+  color: white;
+  border: none;
+  border-radius: var(--radius);
+  cursor: pointer;
+}
+.actions button:hover:not(:disabled) {
+  background: var(--color-button-primary-hover);
+}
+.actions button[type='button'] {
+  background: var(--color-danger);
+}
+.actions a {
+  color: var(--color-primary);
+}
+.error {
+  color: var(--color-danger);
+  font-size: 0.875rem;
+}
+h1 {
+  color: var(--color-text);
+}
+.poster-wrap {
+  flex-shrink: 0;
+}
+.poster-large {
+  width: 200px;
+  height: auto;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  display: block;
+}

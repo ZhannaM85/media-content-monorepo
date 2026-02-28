@@ -4,47 +4,8 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
   selector: 'lib-table',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <table class="lib-table">
-      <thead>
-        <tr>
-          @for (col of columns(); track col.key) {
-            <th>{{ col.label }}</th>
-          }
-        </tr>
-      </thead>
-      <tbody>
-        <ng-content></ng-content>
-      </tbody>
-    </table>
-  `,
-  styles: [
-    `
-      .lib-table {
-        width: 100%;
-        border-collapse: collapse;
-        background: var(--color-surface);
-        border-radius: var(--radius);
-        box-shadow: var(--shadow-sm);
-        overflow: hidden;
-      }
-      .lib-table th,
-      .lib-table td {
-        padding: 0.75rem 1rem;
-        text-align: left;
-        border-bottom: 1px solid var(--color-table-border);
-        color: var(--color-text);
-      }
-      .lib-table th {
-        font-weight: 600;
-        background: var(--color-table-header-bg);
-        color: var(--color-text);
-      }
-      .lib-table tbody tr:hover {
-        background: var(--color-table-row-hover);
-      }
-    `,
-  ],
+  templateUrl: './table.component.html',
+  styleUrl: './table.component.scss',
 })
 export class TableComponent<T = unknown> {
   columns = input.required<{ key: string; label: string }[]>();

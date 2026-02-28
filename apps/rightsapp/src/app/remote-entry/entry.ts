@@ -4,6 +4,6 @@ import { NxWelcome } from './nx-welcome';
 @Component({
   imports: [NxWelcome],
   selector: 'app-rightsapp-entry',
-  template: `<app-nx-welcome></app-nx-welcome>`,
+  templateUrl: './entry.component.html',
 })
 export class RemoteEntry {}

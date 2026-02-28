@@ -1,0 +1,17 @@
+<h1>Rights</h1>
+<p *libHasRole="'editor'">
+  <a routerLink="assign/new" class="btn">Assign rights (new)</a>
+</p>
+<lib-table [columns]="columns">
+  @for (r of rights$ | async; track r.id) {
+    <tr>
+      <td>{{ r.contentId }}</td>
+      <td>{{ r.regions.join(', ') }}</td>
+      <td>{{ r.expirationDate }}</td>
+      <td>{{ r.gdprAcknowledged ? 'Yes' : '—' }}</td>
+      <td>
+        <a [routerLink]="['assign', r.contentId]">Edit</a>
+      </td>
+    </tr>
+  }
+</lib-table>
