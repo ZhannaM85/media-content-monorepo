@@ -40,6 +40,7 @@ export class ContentListComponent {
     columns = [
         { key: 'poster', label: '' },
         { key: 'title', label: 'Title' },
+        { key: 'id', label: 'ID' },
         { key: 'releaseDate', label: 'Release date' },
         { key: 'voteAverage', label: 'Rating' },
         { key: 'actions', label: 'Actions' },
