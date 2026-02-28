@@ -3,8 +3,8 @@
   "version": "0.0.0",
   "license": "MIT",
   "scripts": {
-    "start": "nx serve admin-shell",
-    "build": "nx build admin-shell"
+    "start": "node scripts/inject-env.js && nx serve admin-shell",
+    "build": "node scripts/inject-env.js && nx build admin-shell"
   },
   "private": true,
   "dependencies": {

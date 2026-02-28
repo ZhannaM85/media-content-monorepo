@@ -1,4 +1,6 @@
-/** Set NX_TMDB_API_KEY when serving/building to use TMDB API. Do not commit real keys. */
+/** TMDB key is injected from .env via scripts/inject-env.js (run before serve/build). */
+import { env } from './environment.generated';
+
 export const environment = {
-  tmdbApiKey: '',
+  tmdbApiKey: env.NX_TMDB_API_KEY,
 };
