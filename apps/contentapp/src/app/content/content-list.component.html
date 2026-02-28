@@ -33,7 +33,11 @@
                 <td class="content-cell">{{ item.voteAverage ?? '—' }}</td>
                 <td class="content-cell">
                     <a [routerLink]="[item.id, 'edit']">Edit</a>
-                    <a [routerLink]="['/rights/assign', item.id]" class="link-rights">Assign rights</a>
+                    @if (hasRights(item.id)) {
+                        <a [routerLink]="['/rights/assign', item.id]" class="link-rights">Edit rights</a>
+                    } @else {
+                        <a [routerLink]="['/rights/assign', item.id]" class="link-rights">Assign rights</a>
+                    }
                 </td>
             </tr>
         }

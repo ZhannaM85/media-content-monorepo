@@ -7,9 +7,13 @@ import {
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { TmdbService } from '@media-content/shared-data-access';
+import { toSignal } from '@angular/core/rxjs-interop';
+import {
+    TmdbService,
+    RightsStoreService,
+} from '@media-content/shared-data-access';
 import { TableComponent, PaginationComponent } from '@media-content/shared-ui';
-import type { Content } from '@media-content/shared-types';
+import type { Content, Rights } from '@media-content/shared-types';
 import { HasRoleDirective } from '@media-content/shared-auth';
 import { ContentDraftService } from './content-draft.service';
 
@@ -30,6 +34,16 @@ import { ContentDraftService } from './content-draft.service';
 export class ContentListComponent {
     private readonly tmdb = inject(TmdbService);
     private readonly draftService = inject(ContentDraftService);
+    private readonly rightsStore = inject(RightsStoreService);
+
+    private rightsList = toSignal(this.rightsStore.getRights(), {
+        initialValue: [] as Rights[],
+    });
+    private contentIdsWithRights = computed(() =>
+        new Set(
+            (this.rightsList() ?? []).map((r) => String(r.contentId)),
+        ),
+    );
 
     filterStatus = signal<'all' | 'tmdb' | 'draft'>('all');
     currentPage = signal(1);
@@ -61,6 +75,10 @@ export class ContentListComponent {
 
     trackById(_index: number, item: Content): number | string {
         return item.id;
+    }
+
+    hasRights(contentId: number | string): boolean {
+        return this.contentIdsWithRights().has(String(contentId));
     }
 
     onFilterChange(v: string) {
