@@ -39,6 +39,26 @@ jobs:
       - name: Build
         run: npx nx build admin-shell
 
+      - name: Generate build.txt
+        run: |
+          node -e "
+            const pkg = require('./package.json');
+            const now = new Date().toISOString();
+            const deps = Object.entries(pkg.dependencies || {})
+              .map(([name, version]) => '  ' + name + ': ' + version)
+              .join('\n');
+            const content =
+              'Project: ' + pkg.name + '\n' +
+              'Version: ' + pkg.version + '\n' +
+              'Description: ' + (pkg.description || '') + '\n' +
+              '\n' +
+              'Dependencies:\n' + deps + '\n' +
+              '\n' +
+              'Deployed: ' + now + '\n' +
+              'Commit: ' + (process.env.GITHUB_SHA || '') + '\n';
+            require('fs').writeFileSync('dist/apps/admin-shell/build.txt', content);
+          "
+
       - name: Upload GitHub Pages artifact
         if: github.event_name == 'push' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main')
         uses: actions/upload-pages-artifact@v3
