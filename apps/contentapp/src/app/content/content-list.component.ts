@@ -46,6 +46,13 @@ import { ContentDraftService } from './content-draft.service';
       <lib-table [columns]="columns">
         @for (item of list(); track trackById($index, item)) {
           <tr>
+            <td class="poster-cell">
+              @if (item.posterPath) {
+                <img [src]="item.posterPath" [alt]="item.title" class="poster-thumb" loading="lazy" />
+              } @else {
+                <div class="poster-placeholder">No image</div>
+              }
+            </td>
             <td>{{ item.title }}</td>
             <td>{{ item.releaseDate || '—' }}</td>
             <td>{{ item.voteAverage ?? '—' }}</td>
@@ -90,6 +97,30 @@ import { ContentDraftService } from './content-draft.service';
         background: var(--color-surface);
         color: var(--color-text);
       }
+      .poster-cell {
+        width: 52px;
+        padding: 0.35rem !important;
+        vertical-align: middle;
+      }
+      .poster-thumb {
+        width: 46px;
+        height: 69px;
+        object-fit: cover;
+        border-radius: 4px;
+        display: block;
+      }
+      .poster-placeholder {
+        width: 46px;
+        height: 69px;
+        background: var(--color-table-row-hover);
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.65rem;
+        color: var(--color-text-secondary);
+        text-align: center;
+      }
       h1 {
         color: var(--color-text);
         margin-bottom: 1rem;
@@ -111,6 +142,7 @@ export class ContentListComponent {
   private tmdbResults = signal<Content[]>([]);
 
   columns = [
+    { key: 'poster', label: '' },
     { key: 'title', label: 'Title' },
     { key: 'releaseDate', label: 'Release date' },
     { key: 'voteAverage', label: 'Rating' },

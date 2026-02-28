@@ -21,6 +21,11 @@ import { ContentDraftService } from './content-draft.service';
   imports: [ReactiveFormsModule, RouterLink],
   template: `
     <h1>{{ isEdit() ? 'Edit content' : 'New content' }}</h1>
+    @if (posterUrl()) {
+      <div class="poster-wrap">
+        <img [src]="posterUrl()" alt="Poster" class="poster-large" />
+      </div>
+    }
     <form [formGroup]="form" (ngSubmit)="onSubmit()">
       <div>
         <label for="title">Title</label>
@@ -42,7 +47,7 @@ import { ContentDraftService } from './content-draft.service';
       }
       <div class="actions">
         <button type="submit" [disabled]="form.invalid">Save</button>
-        <a routerLink="..">Cancel</a>
+        <a routerLink="../..">Cancel</a>
       </div>
     </form>
   `,
@@ -103,6 +108,16 @@ import { ContentDraftService } from './content-draft.service';
       h1 {
         color: var(--color-text);
       }
+      .poster-wrap {
+        margin-bottom: 1rem;
+      }
+      .poster-large {
+        width: 200px;
+        height: auto;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        display: block;
+      }
     `,
   ],
 })
@@ -123,6 +138,7 @@ export class ContentFormComponent {
   id = computed(() => this.routeId());
   isEdit = computed(() => !!this.id());
   isDraft = signal(false);
+  posterUrl = signal<string | null>(null);
   titleError = computed(() => {
     const c = this.form.get('title');
     if (!c?.touched || !c?.errors) return null;
@@ -137,7 +153,10 @@ export class ContentFormComponent {
     );
     effect(() => {
       const id = this.id();
-      if (!id) return;
+      if (!id) {
+        this.posterUrl.set(null);
+        return;
+      }
       const draft = this.draftService.getDraft(id);
       if (draft) {
         this.isDraft.set(true);
@@ -146,9 +165,11 @@ export class ContentFormComponent {
           overview: draft.overview ?? '',
           releaseDate: draft.releaseDate ?? '',
         });
+        this.posterUrl.set(this.largerPosterUrl(draft.posterPath) ?? null);
         return;
       }
       this.isDraft.set(false);
+      this.posterUrl.set(null);
       const numId = Number(id);
       if (!Number.isNaN(numId)) {
         this.tmdb.getMovie(numId).subscribe((m) => {
@@ -157,6 +178,7 @@ export class ContentFormComponent {
             overview: m.overview ?? '',
             releaseDate: m.releaseDate ?? '',
           });
+          this.posterUrl.set(this.largerPosterUrl(m.posterPath) ?? null);
         });
       }
     });
@@ -182,12 +204,18 @@ export class ContentFormComponent {
         releaseDate: value.releaseDate ?? undefined,
       });
     }
-    this.router.navigate(['..'], { relativeTo: this.route });
+    this.router.navigate(['../..'], { relativeTo: this.route });
   }
 
   onDelete() {
     const id = this.id();
     if (id) this.draftService.removeDraft(id);
-    this.router.navigate(['..'], { relativeTo: this.route });
+    this.router.navigate(['../..'], { relativeTo: this.route });
+  }
+
+  /** TMDB poster URL with larger size (w342) for edit view */
+  private largerPosterUrl(path: string | undefined): string | undefined {
+    if (!path) return undefined;
+    return path.replace('/t/p/w92/', '/t/p/w342/');
   }
 }
