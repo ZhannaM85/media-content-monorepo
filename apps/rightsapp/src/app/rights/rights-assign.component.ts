@@ -7,9 +7,10 @@ import {
     signal,
 } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
-import { Router, ActivatedRoute, RouterLink } from '@angular/router';
+import { Location } from '@angular/common';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { map } from 'rxjs';
+import { map, take } from 'rxjs';
 import {
     RightsStoreService,
     TmdbService,
@@ -28,7 +29,7 @@ const REGIONS: Region[] = ['US', 'EU', 'APAC'];
 })
 export class RightsAssignComponent {
     private readonly fb = inject(FormBuilder);
-    private readonly router = inject(Router);
+    private readonly location = inject(Location);
     private readonly route = inject(ActivatedRoute);
     private readonly rightsStore = inject(RightsStoreService);
     private readonly tmdb = inject(TmdbService);
@@ -90,6 +91,23 @@ export class RightsAssignComponent {
                 this.contentDisplay.set({ id, title: '(Draft)' });
             }
         });
+
+        effect(() => {
+            const id = this.contentId();
+            if (!id || id === 'new') return;
+            this.rightsStore
+                .getRightsByContentId(id)
+                .pipe(take(1))
+                .subscribe((rights) => {
+                    if (rights) {
+                        this.form.patchValue({
+                            regions: rights.regions ?? [],
+                            expirationDate: rights.expirationDate ?? '',
+                            gdprAcknowledged: rights.gdprAcknowledged ?? false,
+                        });
+                    }
+                });
+        });
     }
 
     onRegionChange(region: Region, e: Event) {
@@ -117,6 +135,10 @@ export class RightsAssignComponent {
             expirationDate: value.expirationDate ?? '',
             gdprAcknowledged: value.gdprAcknowledged ?? false,
         });
-        this.router.navigate(['/rights']);
+        this.goBack();
+    }
+
+    goBack(): void {
+        this.location.back();
     }
 }

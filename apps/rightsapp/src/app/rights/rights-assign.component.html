@@ -42,22 +42,24 @@
             <span class="error">Required</span>
         }
     </div>
-    @if (includesEu()) {
-        <div>
-            <label>
-                <input type="checkbox" formControlName="gdprAcknowledged" />
-                GDPR compliance acknowledged (required for EU)
-            </label>
-            @if (
-                form.get('gdprAcknowledged')?.invalid &&
-                form.get('gdprAcknowledged')?.touched
-            ) {
-                <span class="error">Required when EU is selected</span>
+    <div>
+        <label>
+            <input type="checkbox" formControlName="gdprAcknowledged" />
+            GDPR compliance acknowledged
+            @if (includesEu()) {
+                <span class="required-hint">(required for EU)</span>
             }
-        </div>
-    }
+        </label>
+        @if (
+            includesEu() &&
+            form.get('gdprAcknowledged')?.invalid &&
+            form.get('gdprAcknowledged')?.touched
+        ) {
+            <span class="error">Required when EU is selected</span>
+        }
+    </div>
     <div class="actions">
         <button type="submit" [disabled]="form.invalid">Save</button>
-        <a routerLink="/rights">Cancel</a>
+        <button type="button" (click)="goBack()">Cancel</button>
     </div>
 </form>

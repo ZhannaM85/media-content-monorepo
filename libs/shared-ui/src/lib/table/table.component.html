@@ -2,7 +2,7 @@
     <thead>
         <tr>
             @for (col of columns(); track col.key) {
-                <th>{{ col.label }}</th>
+                <th [class.align-center]="col.align === 'center'" [class.align-right]="col.align === 'right'">{{ col.label }}</th>
             }
         </tr>
     </thead>
