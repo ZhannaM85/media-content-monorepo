@@ -64,7 +64,6 @@ export class RightsAssignComponent {
                 gdpr.setValidators(Validators.requiredTrue);
             } else {
                 gdpr.clearValidators();
-                gdpr.setValue(false);
             }
             gdpr.updateValueAndValidity();
         });

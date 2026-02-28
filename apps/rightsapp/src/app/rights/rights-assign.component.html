@@ -25,6 +25,7 @@
                     <input
                         type="checkbox"
                         [value]="r"
+                        [checked]="(form.get('regions')?.value || []).includes(r)"
                         (change)="onRegionChange(r, $event)"
                     />
                     {{ r }}
