@@ -32,4 +32,4 @@ jobs:
         run: node scripts/inject-env.js
 
       - name: Build
-        run: npx nx build admin-shell:build
+        run: npx nx build admin-shell
