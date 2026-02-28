@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '@media-content/shared-auth';
@@ -16,10 +16,8 @@ export class LoginComponent {
     username = '';
     role: Role = 'viewer';
 
-    constructor(
-        private readonly auth: AuthService,
-        private readonly router: Router,
-    ) {}
+    private readonly auth = inject(AuthService);
+    private readonly router = inject(Router);
 
     onSubmit() {
         if (!this.username.trim()) return;

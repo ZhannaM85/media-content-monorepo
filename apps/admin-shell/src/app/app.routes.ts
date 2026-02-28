@@ -10,13 +10,13 @@ export const appRoutes: Route[] = [
     {
         path: 'content',
         loadChildren: () =>
-            import('contentapp/Routes').then((m) => m!.remoteRoutes),
+            import('contentapp/Routes').then((m) => m?.remoteRoutes ?? []),
         canActivate: [authGuard],
     },
     {
         path: 'rights',
         loadChildren: () =>
-            import('rightsapp/Routes').then((m) => m!.remoteRoutes),
+            import('rightsapp/Routes').then((m) => m?.remoteRoutes ?? []),
         canActivate: [authGuard],
     },
     {

@@ -7,7 +7,8 @@ form {
     max-width: 480px;
 }
 
-label {
+label,
+.label {
     display: block;
     margin-bottom: 0.25rem;
     color: var(--color-text);

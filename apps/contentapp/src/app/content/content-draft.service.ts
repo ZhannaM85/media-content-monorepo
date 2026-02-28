@@ -1,4 +1,4 @@
-import { Injectable, signal, computed } from '@angular/core';
+import { Injectable, signal } from '@angular/core';
 import type { Content } from '@media-content/shared-types';
 
 @Injectable({ providedIn: 'root' })
