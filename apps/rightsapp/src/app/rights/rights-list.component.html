@@ -5,11 +5,13 @@
 <lib-table [columns]="columns">
     @for (r of rights$ | async; track r.id) {
         <tr>
-            <td>{{ r.contentId }}</td>
-            <td>{{ r.regions.join(', ') }}</td>
-            <td>{{ r.expirationDate }}</td>
-            <td>{{ r.gdprAcknowledged ? 'Yes' : '—' }}</td>
-            <td>
+            <td class="content-cell">
+                <a [routerLink]="['/content', r.contentId, 'edit']">{{ r.contentId }}</a>
+            </td>
+            <td class="content-cell">{{ r.regions.join(', ') }}</td>
+            <td class="content-cell">{{ r.expirationDate }}</td>
+            <td class="actions-cell">{{ r.gdprAcknowledged ? 'Yes' : '—' }}</td>
+            <td class="actions-cell">
                 <a [routerLink]="['assign', r.contentId]">Edit</a>
             </td>
         </tr>

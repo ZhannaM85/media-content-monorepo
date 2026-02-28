@@ -8,6 +8,8 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
     styleUrl: './table.component.scss',
 })
 export class TableComponent<T = unknown> {
-    columns = input.required<{ key: string; label: string }[]>();
+    columns = input.required<
+        { key: string; label: string; align?: 'left' | 'center' | 'right' }[]
+    >();
     rows = input<T[]>([]);
 }
