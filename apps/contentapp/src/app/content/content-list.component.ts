@@ -1,21 +1,19 @@
-import {
-    ChangeDetectionStrategy,
-    Component,
-    inject,
-    signal,
-    computed,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal, computed } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { ScrollingModule } from '@angular/cdk/scrolling';
 import { toSignal } from '@angular/core/rxjs-interop';
 import {
     TmdbService,
     RightsStoreService,
 } from '@media-content/shared-data-access';
-import { TableComponent, PaginationComponent } from '@media-content/shared-ui';
+import { PaginationComponent } from '@media-content/shared-ui';
 import type { Content, Rights } from '@media-content/shared-types';
 import { HasRoleDirective } from '@media-content/shared-auth';
 import { ContentDraftService } from './content-draft.service';
+
+/** Row height in px for CDK virtual scroll */
+const ROW_HEIGHT_PX = 72;
 
 @Component({
     selector: 'app-content-list',
@@ -24,7 +22,7 @@ import { ContentDraftService } from './content-draft.service';
     imports: [
         RouterLink,
         FormsModule,
-        TableComponent,
+        ScrollingModule,
         PaginationComponent,
         HasRoleDirective,
     ],
@@ -50,8 +48,9 @@ export class ContentListComponent {
     loading = signal(false);
     totalPages = signal(0);
     private tmdbResults = signal<Content[]>([]);
+    readonly rowHeightPx = ROW_HEIGHT_PX;
 
-    columns = [
+    columns: { key: string; label: string; align?: 'left' | 'center' | 'right' }[] = [
         { key: 'poster', label: '' },
         { key: 'title', label: 'Title' },
         { key: 'id', label: 'ID' },

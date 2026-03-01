@@ -25,3 +25,31 @@ a {
 .actions-cell {
     text-align: center;
 }
+
+.virtual-table-wrapper {
+    .virtual-table-header {
+        margin-bottom: 0;
+        border-radius: var(--radius) var(--radius) 0 0;
+    }
+    .virtual-table-header th {
+        border-bottom: 1px solid var(--color-table-border);
+    }
+}
+
+.rights-viewport {
+    height: 60vh;
+    display: block;
+    border: 1px solid var(--color-table-border);
+    border-top: none;
+    border-radius: 0 0 var(--radius) var(--radius);
+    overflow: auto;
+}
+
+.rights-viewport .lib-table {
+    border-radius: 0;
+    box-shadow: none;
+}
+
+.rights-viewport .lib-table tbody tr:hover {
+    background: var(--color-table-row-hover);
+}

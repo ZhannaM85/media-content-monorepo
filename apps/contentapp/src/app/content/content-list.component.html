@@ -12,37 +12,50 @@
 @if (loading()) {
     <p>Loading…</p>
 } @else {
-    <lib-table [columns]="columns">
-        @for (item of list(); track trackById($index, item)) {
-            <tr>
-                <td class="poster-cell">
-                    @if (item.posterPath) {
-                        <img
-                            [src]="item.posterPath"
-                            [alt]="item.title"
-                            class="poster-thumb"
-                            loading="lazy"
-                        />
-                    } @else {
-                        <div class="poster-placeholder">No image</div>
+    <div class="virtual-table-wrapper">
+        <table class="lib-table virtual-table-header">
+            <thead>
+                <tr>
+                    @for (col of columns; track col.key) {
+                        <th [class.align-center]="col.align === 'center'" [class.align-right]="col.align === 'right'">{{ col.label }}</th>
                     }
-                </td>
-                <td class="title-cell">{{ item.title }}</td>
-                <td class="content-cell">{{ item.id }}</td>
-                <td class="content-cell">{{ item.releaseDate || '—' }}</td>
-                <td class="content-cell">{{ item.voteAverage ?? '—' }}</td>
-                <td class="content-cell">
-                    <a [routerLink]="[item.id, 'edit']">Edit</a>
-                    @if (hasRights(item.id)) {
-                        <a [routerLink]="['/rights/assign', item.id]" class="link-rights">Edit rights</a>
-                    } @else {
-                        <a [routerLink]="['/rights/assign', item.id]" class="link-rights">Assign rights</a>
-                    }
-                </td>
-            </tr>
-        }
-    </lib-table>
-    @if (filterStatus() !== 'draft' && totalPages() > 0) {
+                </tr>
+            </thead>
+        </table>
+        <cdk-virtual-scroll-viewport [itemSize]="rowHeightPx" class="content-viewport">
+            <table class="lib-table">
+                <tbody>
+                    <tr *cdkVirtualFor="let item of list()" class="lib-table-row">
+                        <td class="poster-cell">
+                            @if (item.posterPath) {
+                                <img
+                                    [src]="item.posterPath"
+                                    [alt]="item.title"
+                                    class="poster-thumb"
+                                    loading="lazy"
+                                />
+                            } @else {
+                                <div class="poster-placeholder">No image</div>
+                            }
+                        </td>
+                        <td class="title-cell">{{ item.title }}</td>
+                        <td class="content-cell">{{ item.id }}</td>
+                        <td class="content-cell">{{ item.releaseDate || '—' }}</td>
+                        <td class="content-cell">{{ item.voteAverage ?? '—' }}</td>
+                        <td class="content-cell">
+                            <a [routerLink]="[item.id, 'edit']">Edit</a>
+                            @if (hasRights(item.id)) {
+                                <a [routerLink]="['/rights/assign', item.id]" class="link-rights">Edit rights</a>
+                            } @else {
+                                <a [routerLink]="['/rights/assign', item.id]" class="link-rights">Assign rights</a>
+                            }
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </cdk-virtual-scroll-viewport>
+    </div>
+    @if (filterStatus() === 'tmdb' && totalPages() > 1) {
         <lib-pagination
             [currentPage]="currentPage()"
             [totalPages]="totalPages()"
