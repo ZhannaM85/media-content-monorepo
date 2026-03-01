@@ -1,5 +1,16 @@
 <h1>Content</h1>
 <div class="toolbar">
+    <label class="search-label" for="content-search">
+        <input
+            id="content-search"
+            type="search"
+            class="search-input"
+            [ngModel]="searchQuery()"
+            (ngModelChange)="onSearchChange($event)"
+            placeholder="Search by title (min 3 characters)"
+            autocomplete="off"
+        />
+    </label>
     <select [ngModel]="filterStatus()" (ngModelChange)="onFilterChange($event)">
         <option value="all">All</option>
         <option value="tmdb">From TMDB</option>
@@ -9,40 +20,99 @@
         <a routerLink="new" class="btn">Add content</a>
     </span>
 </div>
-@if (loading()) {
+@if (loading() && list().length === 0) {
     <p>Loading…</p>
+} @else if (sortedList().length === 0) {
+    <p class="empty-message" role="status">No content to display.</p>
 } @else {
-    <lib-table [columns]="columns">
-        @for (item of list(); track trackById($index, item)) {
-            <tr>
-                <td class="poster-cell">
-                    @if (item.posterPath) {
-                        <img
-                            [src]="item.posterPath"
-                            [alt]="item.title"
-                            class="poster-thumb"
-                            loading="lazy"
-                        />
-                    } @else {
-                        <div class="poster-placeholder">No image</div>
+    <div class="virtual-table-wrapper">
+        <div class="virtual-table-inner">
+        <table class="lib-table virtual-table-header content-table-fixed">
+            <colgroup>
+                <col class="col-poster" />
+                <col class="col-title" />
+                <col class="col-id" />
+                <col class="col-release" />
+                <col class="col-rating" />
+                <col class="col-actions" />
+            </colgroup>
+            <thead>
+                <tr>
+                    @for (col of columns; track col.key) {
+                        <th
+                            [class.align-left]="col.align === 'left'"
+                            [class.align-center]="col.align === 'center'"
+                            [class.align-right]="col.align === 'right'"
+                            [class.sortable]="sortableColumns.has(col.key)"
+                            (click)="setSort(col.key)"
+                        >
+                            <span class="th-label">{{ col.label }}</span>
+                            @if (sortableColumns.has(col.key)) {
+                                <span class="sort-indicator" [attr.aria-label]="getSortAriaLabel(col.key)">
+                                    @if (sortColumn() === col.key) {
+                                        {{ sortDirection() === 'asc' ? '↑' : '↓' }}
+                                    } @else {
+                                        <span class="sort-placeholder" aria-hidden="true">↕</span>
+                                    }
+                                </span>
+                            }
+                        </th>
                     }
-                </td>
-                <td class="title-cell">{{ item.title }}</td>
-                <td class="content-cell">{{ item.id }}</td>
-                <td class="content-cell">{{ item.releaseDate || '—' }}</td>
-                <td class="content-cell">{{ item.voteAverage ?? '—' }}</td>
-                <td class="content-cell">
-                    <a [routerLink]="[item.id, 'edit']">Edit</a>
-                    @if (hasRights(item.id)) {
-                        <a [routerLink]="['/rights/assign', item.id]" class="link-rights">Edit rights</a>
-                    } @else {
-                        <a [routerLink]="['/rights/assign', item.id]" class="link-rights">Assign rights</a>
-                    }
-                </td>
-            </tr>
-        }
-    </lib-table>
-    @if (filterStatus() !== 'draft' && totalPages() > 0) {
+                </tr>
+            </thead>
+        </table>
+        <cdk-virtual-scroll-viewport
+            [itemSize]="rowHeightPx"
+            [minBufferPx]="rowHeightPx * 4"
+            [maxBufferPx]="rowHeightPx * 8"
+            class="content-viewport"
+            (scrolledIndexChange)="onScrolledIndexChange($event)"
+        >
+            <table class="lib-table content-table-fixed">
+                <colgroup>
+                    <col class="col-poster" />
+                    <col class="col-title" />
+                    <col class="col-id" />
+                    <col class="col-release" />
+                    <col class="col-rating" />
+                    <col class="col-actions" />
+                </colgroup>
+                <tbody>
+                    <tr *cdkVirtualFor="let item of sortedList()" class="lib-table-row">
+                        <td class="poster-cell">
+                            @if (item.posterPath) {
+                                <img
+                                    [src]="item.posterPath"
+                                    [alt]="item.title"
+                                    class="poster-thumb"
+                                    loading="lazy"
+                                />
+                            } @else {
+                                <div class="poster-placeholder">No image</div>
+                            }
+                        </td>
+                        <td class="title-cell"><span class="title-cell-inner">{{ item.title }}</span></td>
+                        <td class="cell-id">{{ item.id }}</td>
+                        <td class="cell-release">{{ item.releaseDate || '—' }}</td>
+                        <td class="cell-rating">{{ item.voteAverage ?? '—' }}</td>
+                        <td class="content-cell actions-cell">
+                            <a [routerLink]="[item.id, 'edit']">Edit</a>
+                            @if (hasRights(item.id)) {
+                                <a [routerLink]="['/rights/assign', item.id]" class="link-rights">Edit rights</a>
+                            } @else {
+                                <a [routerLink]="['/rights/assign', item.id]" class="link-rights">Assign rights</a>
+                            }
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </cdk-virtual-scroll-viewport>
+        </div>
+    </div>
+    @if (loading() && list().length > 0) {
+        <p class="loading-more">Loading more…</p>
+    }
+    @if (filterStatus() === 'tmdb' && totalPages() > 1) {
         <lib-pagination
             [currentPage]="currentPage()"
             [totalPages]="totalPages()"
