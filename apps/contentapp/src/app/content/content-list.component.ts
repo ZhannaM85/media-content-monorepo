@@ -59,6 +59,8 @@ export class ContentListComponent {
     filterStatus = signal<'all' | 'tmdb' | 'draft'>('all');
     currentPage = signal(1);
     loading = signal(false);
+    /** True when waiting for an API response that replaces the main list (filter, search, initial load, sort). Full-page spinner shows. */
+    loadingBlocking = signal(false);
     totalPages = signal(0);
     private tmdbResults = signal<Content[]>([]);
     readonly rowHeightPx = ROW_HEIGHT_PX;
@@ -232,6 +234,7 @@ export class ContentListComponent {
     /** Run API search and update searchResults (only apply if term still matches current search). */
     private runSearch(term: string, page: number): void {
         this.loading.set(true);
+        if (page === 1) this.loadingBlocking.set(true);
         this.tmdb.searchMovies(term, page).subscribe({
             next: (res) => {
                 if ((this.searchTerm() ?? '').trim() !== term) return;
@@ -243,8 +246,12 @@ export class ContentListComponent {
                 this.searchTotalPages.set(res.totalPages);
                 this.searchCurrentPage.set(res.page);
                 this.loading.set(false);
+                if (page === 1) this.loadingBlocking.set(false);
             },
-            error: () => this.loading.set(false),
+            error: () => {
+                this.loading.set(false);
+                if (page === 1) this.loadingBlocking.set(false);
+            },
         });
     }
 
@@ -329,6 +336,7 @@ export class ContentListComponent {
     private loadPage() {
         if (this.filterStatus() === 'draft') return;
         this.loading.set(true);
+        this.loadingBlocking.set(true);
         this.tmdb
             .discoverMovies({
                 page: this.currentPage(),
@@ -339,8 +347,12 @@ export class ContentListComponent {
                     this.tmdbResults.set(res.results);
                     this.totalPages.set(res.totalPages);
                     this.loading.set(false);
+                    this.loadingBlocking.set(false);
                 },
-                error: () => this.loading.set(false),
+                error: () => {
+                    this.loading.set(false);
+                    this.loadingBlocking.set(false);
+                },
             });
     }
 }

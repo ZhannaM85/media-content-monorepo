@@ -6,6 +6,66 @@
     flex-wrap: wrap;
 }
 
+.loading-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--color-loading-overlay-bg, rgba(255, 255, 255, 0.9));
+}
+
+.loading-overlay__content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+}
+
+.loading-overlay__text {
+    color: var(--color-text-secondary, #666);
+    font-size: 1rem;
+}
+
+.loading-spinner--large {
+    width: 48px;
+    height: 48px;
+    border-width: 4px;
+}
+
+.loading-more {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+    padding: 1rem;
+    color: var(--color-text-secondary, #666);
+    font-size: 0.9375rem;
+}
+
+.loading-spinner {
+    width: 32px;
+    height: 32px;
+    border: 3px solid var(--color-input-border, #ddd);
+    border-top-color: var(--color-primary, #1976d2);
+    border-radius: 50%;
+    animation: loading-spin 0.8s linear infinite;
+}
+
+.loading-spinner--small {
+    width: 20px;
+    height: 20px;
+    border-width: 2px;
+}
+
+@keyframes loading-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
 .empty-message {
     padding: 2rem;
     text-align: center;
@@ -123,12 +183,6 @@ a {
 }
 .link-rights {
     margin-left: 0.75rem;
-}
-
-.loading-more {
-    margin-top: 0.5rem;
-    color: var(--color-text-secondary);
-    font-size: 0.9rem;
 }
 
 /* Table fills page width; fixed column widths for ID/Release/Rating; title takes the rest */
