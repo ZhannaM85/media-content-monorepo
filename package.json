@@ -10,8 +10,9 @@
         "e2e:install": "npx playwright install chromium",
         "e2e:ui": "nx run admin-shell-e2e:e2e --ui",
         "e2e:headed": "nx run admin-shell-e2e:e2e --headed",
-        "e2e:watch": "cross-env E2E_SERVER_EXTERNAL=1 nx run admin-shell-e2e:e2e --headed",
-        "e2e:ui:watch": "cross-env E2E_SERVER_EXTERNAL=1 nx run admin-shell-e2e:e2e --ui"
+        "e2e:watch": "concurrently -k -s first -n server,e2e \"node scripts/inject-env.js && nx run admin-shell:serve\" \"wait-on -t 300000 http://localhost:4200 && cross-env E2E_SERVER_EXTERNAL=1 nx run admin-shell-e2e:e2e --headed --skip-nx-cache\"",
+        "e2e:watch:fresh": "npx kill-port 4200 4201 4202 && npm run e2e:watch",
+        "e2e:ui:watch": "concurrently -k -s first -n server,e2e \"node scripts/inject-env.js && nx run admin-shell:serve\" \"wait-on -t 300000 http://localhost:4200 && cross-env E2E_SERVER_EXTERNAL=1 nx run admin-shell-e2e:e2e --ui --skip-nx-cache\""
     },
     "private": true,
     "dependencies": {

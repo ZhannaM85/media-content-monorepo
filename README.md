@@ -72,9 +72,9 @@ cd libs/shared-auth && npx jest -c jest.config.cts
 **E2E (Playwright):**
 
 1. **First time:** `npm install` (adds `concurrently`, `wait-on`, `cross-env`), then `npm run e2e:install` (downloads Chromium).
-2. Run: `npm run e2e`. This starts the dev server and runs tests; the server is stopped when tests finish. Ensure port 4200 is free before running.
+2. Run: `npm run e2e`. This starts the dev server and runs tests; the server is stopped when tests finish.
 
-**Watch tests in a visible browser:** Start the app in one terminal (`npm run start`). When ready, in another terminal run `npm run e2e:watch` (headed browser) or `npm run e2e:ui:watch` (Playwright UI with pick-and-run tests).
+**Watch tests in a visible browser:** Run `npm run e2e:watch` (headed) or `npm run e2e:ui:watch` (Playwright UI). Each starts the server and runs tests. If you see "Port 4200 is already in use", stop any other `npm run start` or run `npm run e2e:watch:fresh` to free ports 4200–4202 and then run e2e:watch again.
 
 E2E covers: redirect to login when unauthenticated, login flow, content page, rights assign flow, and viewer not seeing “Add content”.
 
