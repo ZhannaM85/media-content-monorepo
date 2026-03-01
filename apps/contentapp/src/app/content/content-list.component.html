@@ -46,7 +46,7 @@
                         >
                             <span class="th-label">{{ col.label }}</span>
                             @if (sortableColumns.has(col.key)) {
-                                <span class="sort-indicator" [attr.aria-label]="sortColumn() === col.key ? (sortDirection() === 'asc' ? 'Sorted ascending' : 'Sorted descending') : 'Sort'">
+                                <span class="sort-indicator" [attr.aria-label]="getSortAriaLabel(col.key)">
                                     @if (sortColumn() === col.key) {
                                         {{ sortDirection() === 'asc' ? '↑' : '↓' }}
                                     } @else {

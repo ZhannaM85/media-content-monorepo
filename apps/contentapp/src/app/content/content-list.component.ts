@@ -179,21 +179,32 @@ export class ContentListComponent {
         });
     });
 
+    getSortAriaLabel(columnKey: string): string {
+        if (this.sortColumn() !== columnKey) return 'Click to sort';
+        return this.sortDirection() === 'asc'
+            ? 'Sorted ascending'
+            : 'Sorted descending';
+    }
+
     setSort(columnKey: string): void {
         if (!this.sortableColumns.has(columnKey)) return;
         const current = this.sortColumn();
         const dir = this.sortDirection();
         if (current === columnKey) {
-            this.sortDirection.set(dir === 'asc' ? 'desc' : 'asc');
+            if (dir === 'asc') {
+                this.sortDirection.set('desc');
+            } else {
+                this.sortColumn.set(null);
+            }
         } else {
             this.sortColumn.set(columnKey);
             this.sortDirection.set('asc');
         }
-        if (
+        const needsReload =
             !this.isSearchActive() &&
             this.filterStatus() !== 'draft' &&
-            this.serverSortColumns.has(columnKey)
-        ) {
+            (this.serverSortColumns.has(columnKey) || current === columnKey);
+        if (needsReload) {
             this.currentPage.set(1);
             this.loadPage();
         }
