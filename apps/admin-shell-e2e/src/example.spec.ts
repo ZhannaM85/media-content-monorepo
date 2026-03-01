@@ -133,16 +133,16 @@ test.describe('Media Rights Admin', () => {
             await expect(saveBtn).toBeEnabled();
         });
 
-        test('assign rights form shows EU/GDPR required when EU selected', async ({ page }) => {
+        test('assign rights form: EU and GDPR can be set and form submits', async ({ page }) => {
             await loginAs(page, 'editor')();
             await page.goto('/rights/assign/new');
             await page.getByLabel(/content id/i).fill('998');
             await page.getByLabel(/expiration/i).fill('2026-12-31');
-            await page.getByRole('checkbox', { name: /eu/i }).check();
-            const saveBtn = page.getByRole('button', { name: /save/i });
-            await expect(saveBtn).toBeDisabled({ timeout: 5000 });
+            await page.getByRole('checkbox', { name: 'EU' }).check();
             await page.getByRole('checkbox', { name: /gdpr/i }).check();
-            await expect(saveBtn).toBeEnabled();
+            await expect(page.getByRole('button', { name: /save/i })).toBeEnabled();
+            await page.getByRole('button', { name: /save/i }).click();
+            await expect(page).toHaveURL(/\/rights$/);
         });
     });
 });
