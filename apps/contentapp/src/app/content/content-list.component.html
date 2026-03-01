@@ -13,6 +13,7 @@
     <p>Loading…</p>
 } @else {
     <div class="virtual-table-wrapper">
+        <div class="virtual-table-inner">
         <table class="lib-table virtual-table-header content-table-fixed">
             <colgroup>
                 <col class="col-poster" />
@@ -28,7 +29,8 @@
                         <th
                             [class.align-left]="col.align === 'left'"
                             [class.align-center]="col.align === 'center'"
-                            [class.align-right]="col.align === 'right'">{{ col.label }}
+                            [class.align-right]="col.align === 'right'"
+                            [class.title-cell]="col.key === 'title'">{{ col.label }}
                         </th>
                     }
                 </tr>
@@ -64,11 +66,11 @@
                                 <div class="poster-placeholder">No image</div>
                             }
                         </td>
-                        <td class="title-cell">{{ item.title }}</td>
-                        <td class="content-cell">{{ item.id }}</td>
-                        <td class="content-cell">{{ item.releaseDate || '—' }}</td>
-                        <td class="content-cell">{{ item.voteAverage ?? '—' }}</td>
-                        <td class="content-cell">
+                        <td class="title-cell"><span class="title-cell-inner">{{ item.title }}</span></td>
+                        <td class="cell-id">{{ item.id }}</td>
+                        <td class="cell-release">{{ item.releaseDate || '—' }}</td>
+                        <td class="cell-rating">{{ item.voteAverage ?? '—' }}</td>
+                        <td class="content-cell actions-cell">
                             <a [routerLink]="[item.id, 'edit']">Edit</a>
                             @if (hasRights(item.id)) {
                                 <a [routerLink]="['/rights/assign', item.id]" class="link-rights">Edit rights</a>
@@ -80,6 +82,7 @@
                 </tbody>
             </table>
         </cdk-virtual-scroll-viewport>
+        </div>
     </div>
     @if (loading() && list().length > 0) {
         <p class="loading-more">Loading more…</p>

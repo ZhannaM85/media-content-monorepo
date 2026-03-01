@@ -34,17 +34,33 @@ select {
 .title-cell {
     padding-left: 1.25rem;
     padding-right: 1.25rem;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
     text-align: left;
+    vertical-align: middle;
+}
+.title-cell-inner {
+    /* Wrap to 2 lines then ellipsis; line-clamp on inner so cell keeps vertical-align: middle */
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+    white-space: normal;
+    word-wrap: break-word;
 }
 .content-cell {
     padding-left: 1.25rem;
     padding-right: 1.25rem;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+}
+/* ID, Release date, Rating: no truncation; show full value; left-aligned */
+.cell-id,
+.cell-release,
+.cell-rating {
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
+    text-align: center;
+    white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
+    word-break: break-word; /* wrap long IDs/dates if column is still narrow */
 }
 .poster-thumb {
     width: 46px;
@@ -82,25 +98,26 @@ a {
     font-size: 0.9rem;
 }
 
-/* Fixed column widths so header and body tables align and columns don't shift with title length */
+/* Table fills page width; fixed column widths for ID/Release/Rating; title takes the rest */
 .content-table-fixed {
     table-layout: fixed;
     width: 100%;
+    min-width: 850px; /* when window is narrow, horizontal scroll instead of squashing columns */
 
     .col-poster {
         width: 52px;
     }
     .col-title {
-        width: 35%; /* fixed share so header and rows align; title truncates with ellipsis if needed */
+        width: auto; /* takes remaining space so table uses full page width */
     }
     .col-id {
-        width: 100px;
+        width: 150px;
     }
     .col-release {
-        width: 120px;
+        width: 150px;
     }
     .col-rating {
-        width: 80px;
+        width: 150px;
     }
     .col-actions {
         width: 200px;
@@ -108,16 +125,18 @@ a {
 }
 
 .virtual-table-wrapper {
-    /* Ensure the viewport gets a real height so it becomes the scroll container */
     display: block;
+    overflow-x: auto; /* horizontal scroll when narrow; header and body move together */
     .virtual-table-header {
         margin-bottom: 0;
         border-radius: var(--radius) var(--radius) 0 0;
     }
     .virtual-table-header th {
         border-bottom: 1px solid var(--color-table-border);
-        padding-left: 1.25rem;
         padding-right: 1.25rem;
+        &.title-cell {
+            padding-left: 1.25rem;
+        }
     }
     .virtual-table-header th:first-child {
         padding-left: 0.35rem;
@@ -129,6 +148,10 @@ a {
     }
 }
 
+.virtual-table-inner {
+    width: 100%; /* table inside fills page; table itself is width 100% with min-width for narrow viewports */
+}
+
 .content-viewport {
     height: 60vh;
     min-height: 400px;
@@ -136,8 +159,8 @@ a {
     border: 1px solid var(--color-table-border);
     border-top: none;
     border-radius: 0 0 var(--radius) var(--radius);
-    overflow: auto;
-    /* CDK adds .cdk-virtual-scrollable with overflow:auto; ensure this element is the scroll container */
+    overflow-x: hidden; /* horizontal scroll is on .virtual-table-wrapper so header and body stay in sync */
+    overflow-y: auto;
     box-sizing: border-box;
 }
 

@@ -53,9 +53,9 @@ export class ContentListComponent {
     columns: { key: string; label: string; align?: 'left' | 'center' | 'right' }[] = [
         { key: 'poster', label: '' },
         { key: 'title', label: 'Title', align: 'left' },
-        { key: 'id', label: 'ID', align: 'left' },
-        { key: 'releaseDate', label: 'Release date', align: 'left' },
-        { key: 'voteAverage', label: 'Rating', align: 'left' },
+        { key: 'id', label: 'ID', align: 'center' },
+        { key: 'releaseDate', label: 'Release date', align: 'center' },
+        { key: 'voteAverage', label: 'Rating', align: 'center' },
         { key: 'actions', label: 'Actions', align: 'center' },
     ];
 
