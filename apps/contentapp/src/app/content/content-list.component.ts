@@ -59,6 +59,12 @@ export class ContentListComponent {
         { key: 'actions', label: 'Actions', align: 'center' },
     ];
 
+    /** Sortable column keys */
+    readonly sortableColumns = new Set(['title', 'id', 'releaseDate', 'voteAverage']);
+
+    sortColumn = signal<string | null>(null);
+    sortDirection = signal<'asc' | 'desc'>('asc');
+
     list = computed(() => {
         const filter = this.filterStatus();
         const tmdb = this.tmdbResults();
@@ -67,6 +73,42 @@ export class ContentListComponent {
         if (filter === 'draft') return drafts;
         return [...drafts, ...tmdb];
     });
+
+    sortedList = computed(() => {
+        const items = this.list();
+        const col = this.sortColumn();
+        const dir = this.sortDirection();
+        if (!col || !this.sortableColumns.has(col)) return items;
+        const asc = dir === 'asc';
+        return [...items].sort((a, b) => {
+            const aVal = a[col as keyof Content];
+            const bVal = b[col as keyof Content];
+            if (aVal == null && bVal == null) return 0;
+            if (aVal == null) return asc ? 1 : -1;
+            if (bVal == null) return asc ? -1 : 1;
+            if (typeof aVal === 'string' && typeof bVal === 'string') {
+                return asc
+                    ? aVal.localeCompare(bVal)
+                    : bVal.localeCompare(aVal);
+            }
+            if (typeof aVal === 'number' && typeof bVal === 'number') {
+                return asc ? aVal - bVal : bVal - aVal;
+            }
+            return String(aVal).localeCompare(String(bVal), undefined, { numeric: true });
+        });
+    });
+
+    setSort(columnKey: string): void {
+        if (!this.sortableColumns.has(columnKey)) return;
+        const current = this.sortColumn();
+        const dir = this.sortDirection();
+        if (current === columnKey) {
+            this.sortDirection.set(dir === 'asc' ? 'desc' : 'asc');
+        } else {
+            this.sortColumn.set(columnKey);
+            this.sortDirection.set('asc');
+        }
+    }
 
     constructor() {
         this.loadPage();
@@ -95,7 +137,7 @@ export class ContentListComponent {
         if (this.filterStatus() === 'draft') return;
         if (this.loading()) return;
         if (this.currentPage() >= this.totalPages()) return;
-        const listLength = this.list().length;
+        const listLength = this.sortedList().length;
         const loadMoreThreshold = 8;
         if (listLength > 0 && firstVisibleIndex >= listLength - loadMoreThreshold) {
             this.loadMore();

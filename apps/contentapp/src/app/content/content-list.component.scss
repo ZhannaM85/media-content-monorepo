@@ -146,6 +146,24 @@ a {
     .virtual-table-header th:nth-child(2) {
         text-align: left;
     }
+    .virtual-table-header th.sortable {
+        cursor: pointer;
+        user-select: none;
+        white-space: nowrap;
+        &:hover {
+            background: var(--color-table-row-hover);
+        }
+    }
+    .virtual-table-header .th-label {
+        margin-right: 0.25rem;
+    }
+    .virtual-table-header .sort-indicator {
+        opacity: 0.7;
+        font-size: 0.85em;
+    }
+    .virtual-table-header .sort-placeholder {
+        opacity: 0.35;
+    }
 }
 
 .virtual-table-inner {

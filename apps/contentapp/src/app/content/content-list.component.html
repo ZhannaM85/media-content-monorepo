@@ -30,7 +30,19 @@
                             [class.align-left]="col.align === 'left'"
                             [class.align-center]="col.align === 'center'"
                             [class.align-right]="col.align === 'right'"
-                            [class.title-cell]="col.key === 'title'">{{ col.label }}
+                            [class.sortable]="sortableColumns.has(col.key)"
+                            (click)="setSort(col.key)"
+                        >
+                            <span class="th-label">{{ col.label }}</span>
+                            @if (sortableColumns.has(col.key)) {
+                                <span class="sort-indicator" [attr.aria-label]="sortColumn() === col.key ? (sortDirection() === 'asc' ? 'Sorted ascending' : 'Sorted descending') : 'Sort'">
+                                    @if (sortColumn() === col.key) {
+                                        {{ sortDirection() === 'asc' ? '↑' : '↓' }}
+                                    } @else {
+                                        <span class="sort-placeholder" aria-hidden="true">↕</span>
+                                    }
+                                </span>
+                            }
                         </th>
                     }
                 </tr>
@@ -53,7 +65,7 @@
                     <col class="col-actions" />
                 </colgroup>
                 <tbody>
-                    <tr *cdkVirtualFor="let item of list()" class="lib-table-row">
+                    <tr *cdkVirtualFor="let item of sortedList()" class="lib-table-row">
                         <td class="poster-cell">
                             @if (item.posterPath) {
                                 <img
