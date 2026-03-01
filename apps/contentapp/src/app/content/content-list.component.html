@@ -1,5 +1,17 @@
 <h1>Content</h1>
 <div class="toolbar">
+    <label class="search-label" for="content-search">
+        <span class="search-label-text">Search</span>
+        <input
+            id="content-search"
+            type="search"
+            class="search-input"
+            [ngModel]="searchQuery()"
+            (ngModelChange)="onSearchChange($event)"
+            placeholder="Search by title (min 3 characters)"
+            autocomplete="off"
+        />
+    </label>
     <select [ngModel]="filterStatus()" (ngModelChange)="onFilterChange($event)">
         <option value="all">All</option>
         <option value="tmdb">From TMDB</option>

@@ -1,8 +1,17 @@
-import { ChangeDetectionStrategy, Component, inject, signal, computed } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    inject,
+    signal,
+    computed,
+    effect,
+} from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { ScrollingModule } from '@angular/cdk/scrolling';
 import { toSignal } from '@angular/core/rxjs-interop';
+import { BehaviorSubject } from 'rxjs';
+import { debounceTime, distinctUntilChanged, filter, throttleTime } from 'rxjs/operators';
 import {
     TmdbService,
     RightsStoreService,
@@ -14,6 +23,10 @@ import { ContentDraftService } from './content-draft.service';
 
 /** Row height in px for CDK virtual scroll (must match CSS .content-viewport .lib-table tbody tr height) */
 const ROW_HEIGHT_PX = 80;
+
+const SEARCH_DEBOUNCE_MS = 300;
+const SEARCH_THROTTLE_MS = 300;
+const SEARCH_MIN_CHARS = 3;
 
 @Component({
     selector: 'app-content-list',
@@ -65,7 +78,31 @@ export class ContentListComponent {
     sortColumn = signal<string | null>(null);
     sortDirection = signal<'asc' | 'desc'>('asc');
 
-    list = computed(() => {
+    /** Raw search input (bound to the input field) */
+    searchQuery = signal('');
+    /** Search term stream: throttle + debounce, only emit when length >= 3 or length === 0 */
+    private readonly searchInput$ = new BehaviorSubject<string>('');
+    /** Effective search term (debounced/throttled, min 3 chars or empty) */
+    readonly searchTerm = toSignal(
+        this.searchInput$.pipe(
+            throttleTime(SEARCH_THROTTLE_MS),
+            debounceTime(SEARCH_DEBOUNCE_MS),
+            filter(
+                (term) =>
+                    term.length >= SEARCH_MIN_CHARS || term.length === 0
+            ),
+            distinctUntilChanged()
+        ),
+        { initialValue: '' }
+    );
+
+    /** Results from API search (when user has typed 3+ chars). Empty when not searching. */
+    private searchResults = signal<Content[]>([]);
+    private searchTotalPages = signal(0);
+    private searchCurrentPage = signal(1);
+
+    /** Base list: discover + drafts, or filter by tmdb/draft. */
+    private baseList = computed(() => {
         const filter = this.filterStatus();
         const tmdb = this.tmdbResults();
         const drafts = this.draftService.drafts();
@@ -73,6 +110,16 @@ export class ContentListComponent {
         if (filter === 'draft') return drafts;
         return [...drafts, ...tmdb];
     });
+
+    /** True when search is active (user typed 3+ chars and we show API search results). */
+    private isSearchActive = computed(
+        () => (this.searchQuery() ?? '').trim().length >= SEARCH_MIN_CHARS
+    );
+
+    /** List to display: API search results when searching, otherwise base list. */
+    list = computed(() =>
+        this.isSearchActive() ? this.searchResults() : this.baseList()
+    );
 
     sortedList = computed(() => {
         const items = this.list();
@@ -110,8 +157,62 @@ export class ContentListComponent {
         }
     }
 
+    onSearchChange(value: string): void {
+        this.searchQuery.set(value);
+        this.searchInput$.next(value);
+    }
+
     constructor() {
         this.loadPage();
+        effect(() => {
+            const term = (this.searchTerm() ?? '').trim();
+            if (term.length >= SEARCH_MIN_CHARS) {
+                this.runSearch(term, 1);
+            } else {
+                this.searchResults.set([]);
+                this.searchTotalPages.set(0);
+                this.searchCurrentPage.set(0);
+            }
+        });
+    }
+
+    /** Run API search and update searchResults (only apply if term still matches current search). */
+    private runSearch(term: string, page: number): void {
+        this.loading.set(true);
+        this.tmdb.searchMovies(term, page).subscribe({
+            next: (res) => {
+                if ((this.searchTerm() ?? '').trim() !== term) return;
+                if (page === 1) {
+                    this.searchResults.set(res.results);
+                } else {
+                    this.searchResults.update((prev) => [...prev, ...res.results]);
+                }
+                this.searchTotalPages.set(res.totalPages);
+                this.searchCurrentPage.set(res.page);
+                this.loading.set(false);
+            },
+            error: () => this.loading.set(false),
+        });
+    }
+
+    /** Load next page of search results (infinite scroll in search mode). */
+    private loadMoreSearch(): void {
+        const term = (this.searchTerm() ?? '').trim();
+        if (term.length < SEARCH_MIN_CHARS) return;
+        const current = this.searchCurrentPage();
+        const total = this.searchTotalPages();
+        if (current >= total || this.loading()) return;
+        this.loading.set(true);
+        this.tmdb.searchMovies(term, current + 1).subscribe({
+            next: (res) => {
+                if ((this.searchTerm() ?? '').trim() !== term) return;
+                this.searchResults.update((prev) => [...prev, ...res.results]);
+                this.searchTotalPages.set(res.totalPages);
+                this.searchCurrentPage.set(res.page);
+                this.loading.set(false);
+            },
+            error: () => this.loading.set(false),
+        });
     }
 
     trackById(_index: number, item: Content): number | string {
@@ -132,14 +233,19 @@ export class ContentListComponent {
         this.loadPage();
     }
 
-    /** Called when user scrolls near the end of the list – load next TMDB page and append */
+    /** Called when user scrolls near the end of the list – load next page (discover or search). */
     onScrolledIndexChange(firstVisibleIndex: number): void {
-        if (this.filterStatus() === 'draft') return;
         if (this.loading()) return;
-        if (this.currentPage() >= this.totalPages()) return;
         const listLength = this.sortedList().length;
         const loadMoreThreshold = 8;
-        if (listLength > 0 && firstVisibleIndex >= listLength - loadMoreThreshold) {
+        if (listLength === 0 || firstVisibleIndex < listLength - loadMoreThreshold) {
+            return;
+        }
+        if (this.isSearchActive()) {
+            this.loadMoreSearch();
+        } else {
+            if (this.filterStatus() === 'draft') return;
+            if (this.currentPage() >= this.totalPages()) return;
             this.loadMore();
         }
     }

@@ -74,6 +74,37 @@ export class TmdbService {
             .pipe(map((m) => this.mapMovieToContent(m)));
     }
 
+    /**
+     * Search movies by title (query). Uses TMDB search/movie endpoint.
+     */
+    searchMovies(
+        query: string,
+        page = 1
+    ): Observable<{
+        page: number;
+        totalPages: number;
+        totalResults: number;
+        results: Content[];
+    }> {
+        const params = new HttpParams()
+            .set('api_key', this.apiKey)
+            .set('query', query.trim())
+            .set('page', String(page));
+        return this.http
+            .get<TmdbPaginatedResponse<TmdbMovieResult>>(
+                `${this.baseUrl}/search/movie`,
+                { params }
+            )
+            .pipe(
+                map((res) => ({
+                    page: res.page,
+                    totalPages: res.total_pages,
+                    totalResults: res.total_results,
+                    results: res.results.map((m) => this.mapMovieToContent(m)),
+                }))
+            );
+    }
+
     private mapMovieToContent(m: TmdbMovieResult): Content {
         return {
             id: m.id,
