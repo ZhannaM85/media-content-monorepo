@@ -75,8 +75,30 @@ export class ContentListComponent {
     /** Sortable column keys */
     readonly sortableColumns = new Set(['title', 'id', 'releaseDate', 'voteAverage']);
 
+    /** Columns that support server-side sort via TMDB discover sort_by. ID has no API sort. */
+    private readonly serverSortColumns = new Set([
+        'title',
+        'releaseDate',
+        'voteAverage',
+    ]);
+
     sortColumn = signal<string | null>(null);
     sortDirection = signal<'asc' | 'desc'>('asc');
+
+    /** TMDB sort_by value for discover API (e.g. title.asc, release_date.desc). Undefined for id. */
+    private getDiscoverSortBy(): string {
+        const col = this.sortColumn();
+        const dir = this.sortDirection();
+        if (!col || !this.serverSortColumns.has(col)) return 'popularity.desc';
+        const suffix = dir === 'asc' ? 'asc' : 'desc';
+        const tmdbKey =
+            col === 'releaseDate'
+                ? 'release_date'
+                : col === 'voteAverage'
+                  ? 'vote_average'
+                  : 'title';
+        return `${tmdbKey}.${suffix}`;
+    }
 
     /** Raw search input (bound to the input field) */
     searchQuery = signal('');
@@ -121,8 +143,20 @@ export class ContentListComponent {
         this.isSearchActive() ? this.searchResults() : this.baseList()
     );
 
+    /** When true, list is already sorted by API (discover with title/releaseDate/voteAverage). */
+    private isServerSorted = computed(() => {
+        const col = this.sortColumn();
+        return (
+            !this.isSearchActive() &&
+            this.filterStatus() !== 'draft' &&
+            col != null &&
+            this.serverSortColumns.has(col)
+        );
+    });
+
     sortedList = computed(() => {
         const items = this.list();
+        if (this.isServerSorted()) return items;
         const col = this.sortColumn();
         const dir = this.sortDirection();
         if (!col || !this.sortableColumns.has(col)) return items;
@@ -154,6 +188,10 @@ export class ContentListComponent {
         } else {
             this.sortColumn.set(columnKey);
             this.sortDirection.set('asc');
+        }
+        if (!this.isSearchActive() && this.filterStatus() !== 'draft') {
+            this.currentPage.set(1);
+            this.loadPage();
         }
     }
 
@@ -260,7 +298,7 @@ export class ContentListComponent {
         this.tmdb
             .discoverMovies({
                 page: nextPage,
-                sortBy: 'popularity.desc',
+                sortBy: this.getDiscoverSortBy(),
             })
             .subscribe({
                 next: (res) => {
@@ -279,7 +317,7 @@ export class ContentListComponent {
         this.tmdb
             .discoverMovies({
                 page: this.currentPage(),
-                sortBy: 'popularity.desc',
+                sortBy: this.getDiscoverSortBy(),
             })
             .subscribe({
                 next: (res) => {
