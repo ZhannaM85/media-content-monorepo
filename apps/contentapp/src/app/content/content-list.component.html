@@ -9,7 +9,7 @@
         <a routerLink="new" class="btn">Add content</a>
     </span>
 </div>
-@if (loading()) {
+@if (loading() && list().length === 0) {
     <p>Loading…</p>
 } @else {
     <div class="virtual-table-wrapper">
@@ -22,7 +22,13 @@
                 </tr>
             </thead>
         </table>
-        <cdk-virtual-scroll-viewport [itemSize]="rowHeightPx" class="content-viewport">
+        <cdk-virtual-scroll-viewport
+            [itemSize]="rowHeightPx"
+            [minBufferPx]="rowHeightPx * 4"
+            [maxBufferPx]="rowHeightPx * 8"
+            class="content-viewport"
+            (scrolledIndexChange)="onScrolledIndexChange($event)"
+        >
             <table class="lib-table">
                 <tbody>
                     <tr *cdkVirtualFor="let item of list()" class="lib-table-row">
@@ -55,6 +61,9 @@
             </table>
         </cdk-virtual-scroll-viewport>
     </div>
+    @if (loading() && list().length > 0) {
+        <p class="loading-more">Loading more…</p>
+    }
     @if (filterStatus() === 'tmdb' && totalPages() > 1) {
         <lib-pagination
             [currentPage]="currentPage()"

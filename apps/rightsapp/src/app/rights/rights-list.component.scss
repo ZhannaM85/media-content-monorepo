@@ -27,6 +27,7 @@ a {
 }
 
 .virtual-table-wrapper {
+    display: block;
     .virtual-table-header {
         margin-bottom: 0;
         border-radius: var(--radius) var(--radius) 0 0;
@@ -38,16 +39,24 @@ a {
 
 .rights-viewport {
     height: 60vh;
+    min-height: 400px;
     display: block;
     border: 1px solid var(--color-table-border);
     border-top: none;
     border-radius: 0 0 var(--radius) var(--radius);
     overflow: auto;
+    box-sizing: border-box;
 }
 
 .rights-viewport .lib-table {
     border-radius: 0;
     box-shadow: none;
+    table-layout: fixed;
+}
+
+.rights-viewport .lib-table tbody tr {
+    height: 52px;
+    box-sizing: border-box;
 }
 
 .rights-viewport .lib-table tbody tr:hover {

@@ -12,8 +12,8 @@ import type { Content, Rights } from '@media-content/shared-types';
 import { HasRoleDirective } from '@media-content/shared-auth';
 import { ContentDraftService } from './content-draft.service';
 
-/** Row height in px for CDK virtual scroll */
-const ROW_HEIGHT_PX = 72;
+/** Row height in px for CDK virtual scroll (must match CSS .content-viewport .lib-table tbody tr height) */
+const ROW_HEIGHT_PX = 80;
 
 @Component({
     selector: 'app-content-list',
@@ -88,6 +88,41 @@ export class ContentListComponent {
     goToPage(page: number) {
         this.currentPage.set(page);
         this.loadPage();
+    }
+
+    /** Called when user scrolls near the end of the list – load next TMDB page and append */
+    onScrolledIndexChange(firstVisibleIndex: number): void {
+        if (this.filterStatus() === 'draft') return;
+        if (this.loading()) return;
+        if (this.currentPage() >= this.totalPages()) return;
+        const listLength = this.list().length;
+        const loadMoreThreshold = 8;
+        if (listLength > 0 && firstVisibleIndex >= listLength - loadMoreThreshold) {
+            this.loadMore();
+        }
+    }
+
+    /** Load next page from TMDB and append to current results (infinite scroll) */
+    private loadMore(): void {
+        if (this.filterStatus() === 'draft') return;
+        if (this.currentPage() >= this.totalPages()) return;
+        if (this.loading()) return;
+        const nextPage = this.currentPage() + 1;
+        this.loading.set(true);
+        this.tmdb
+            .discoverMovies({
+                page: nextPage,
+                sortBy: 'popularity.desc',
+            })
+            .subscribe({
+                next: (res) => {
+                    this.tmdbResults.set([...this.tmdbResults(), ...res.results]);
+                    this.totalPages.set(res.totalPages);
+                    this.currentPage.set(nextPage);
+                    this.loading.set(false);
+                },
+                error: () => this.loading.set(false),
+            });
     }
 
     private loadPage() {

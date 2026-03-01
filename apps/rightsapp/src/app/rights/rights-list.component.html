@@ -12,7 +12,12 @@
             </tr>
         </thead>
     </table>
-    <cdk-virtual-scroll-viewport [itemSize]="rowHeightPx" class="rights-viewport">
+    <cdk-virtual-scroll-viewport
+        [itemSize]="rowHeightPx"
+        [minBufferPx]="rowHeightPx * 4"
+        [maxBufferPx]="rowHeightPx * 8"
+        class="rights-viewport"
+    >
         <table class="lib-table">
             <tbody>
                 <tr *cdkVirtualFor="let r of rights()" class="lib-table-row">

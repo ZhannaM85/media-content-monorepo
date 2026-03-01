@@ -65,7 +65,15 @@ a {
     margin-left: 0.75rem;
 }
 
+.loading-more {
+    margin-top: 0.5rem;
+    color: var(--color-text-secondary);
+    font-size: 0.9rem;
+}
+
 .virtual-table-wrapper {
+    /* Ensure the viewport gets a real height so it becomes the scroll container */
+    display: block;
     .virtual-table-header {
         margin-bottom: 0;
         border-radius: var(--radius) var(--radius) 0 0;
@@ -77,16 +85,25 @@ a {
 
 .content-viewport {
     height: 60vh;
+    min-height: 400px;
     display: block;
     border: 1px solid var(--color-table-border);
     border-top: none;
     border-radius: 0 0 var(--radius) var(--radius);
     overflow: auto;
+    /* CDK adds .cdk-virtual-scrollable with overflow:auto; ensure this element is the scroll container */
+    box-sizing: border-box;
 }
 
 .content-viewport .lib-table {
     border-radius: 0;
     box-shadow: none;
+    table-layout: fixed;
+}
+
+.content-viewport .lib-table tbody tr {
+    height: 80px;
+    box-sizing: border-box;
 }
 
 .content-viewport .lib-table tbody tr:hover {
