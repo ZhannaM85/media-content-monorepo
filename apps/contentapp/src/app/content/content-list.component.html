@@ -13,11 +13,23 @@
     <p>Loading…</p>
 } @else {
     <div class="virtual-table-wrapper">
-        <table class="lib-table virtual-table-header">
+        <table class="lib-table virtual-table-header content-table-fixed">
+            <colgroup>
+                <col class="col-poster" />
+                <col class="col-title" />
+                <col class="col-id" />
+                <col class="col-release" />
+                <col class="col-rating" />
+                <col class="col-actions" />
+            </colgroup>
             <thead>
                 <tr>
                     @for (col of columns; track col.key) {
-                        <th [class.align-center]="col.align === 'center'" [class.align-right]="col.align === 'right'">{{ col.label }}</th>
+                        <th
+                            [class.align-left]="col.align === 'left'"
+                            [class.align-center]="col.align === 'center'"
+                            [class.align-right]="col.align === 'right'">{{ col.label }}
+                        </th>
                     }
                 </tr>
             </thead>
@@ -29,7 +41,15 @@
             class="content-viewport"
             (scrolledIndexChange)="onScrolledIndexChange($event)"
         >
-            <table class="lib-table">
+            <table class="lib-table content-table-fixed">
+                <colgroup>
+                    <col class="col-poster" />
+                    <col class="col-title" />
+                    <col class="col-id" />
+                    <col class="col-release" />
+                    <col class="col-rating" />
+                    <col class="col-actions" />
+                </colgroup>
                 <tbody>
                     <tr *cdkVirtualFor="let item of list()" class="lib-table-row">
                         <td class="poster-cell">

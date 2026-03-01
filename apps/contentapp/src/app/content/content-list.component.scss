@@ -31,9 +31,20 @@ select {
     padding: 0.35rem !important;
     vertical-align: middle;
 }
-.title-cell,
+.title-cell {
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    text-align: left;
+}
 .content-cell {
     padding-left: 1.25rem;
+    padding-right: 1.25rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 .poster-thumb {
     width: 46px;
@@ -71,6 +82,31 @@ a {
     font-size: 0.9rem;
 }
 
+/* Fixed column widths so header and body tables align and columns don't shift with title length */
+.content-table-fixed {
+    table-layout: fixed;
+    width: 100%;
+
+    .col-poster {
+        width: 52px;
+    }
+    .col-title {
+        width: 35%; /* fixed share so header and rows align; title truncates with ellipsis if needed */
+    }
+    .col-id {
+        width: 100px;
+    }
+    .col-release {
+        width: 120px;
+    }
+    .col-rating {
+        width: 80px;
+    }
+    .col-actions {
+        width: 200px;
+    }
+}
+
 .virtual-table-wrapper {
     /* Ensure the viewport gets a real height so it becomes the scroll container */
     display: block;
@@ -80,6 +116,16 @@ a {
     }
     .virtual-table-header th {
         border-bottom: 1px solid var(--color-table-border);
+        padding-left: 1.25rem;
+        padding-right: 1.25rem;
+    }
+    .virtual-table-header th:first-child {
+        padding-left: 0.35rem;
+        padding-right: 0.35rem;
+    }
+    /* Title column: left-aligned header and content */
+    .virtual-table-header th:nth-child(2) {
+        text-align: left;
     }
 }
 
@@ -98,7 +144,6 @@ a {
 .content-viewport .lib-table {
     border-radius: 0;
     box-shadow: none;
-    table-layout: fixed;
 }
 
 .content-viewport .lib-table tbody tr {
@@ -108,4 +153,14 @@ a {
 
 .content-viewport .lib-table tbody tr:hover {
     background: var(--color-table-row-hover);
+}
+
+.align-left {
+    text-align: left;
+}
+.align-center {
+    text-align: center;
+}
+.align-right {
+    text-align: right;
 }

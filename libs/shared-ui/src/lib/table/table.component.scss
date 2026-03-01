@@ -20,10 +20,16 @@
     color: var(--color-text);
     white-space: nowrap;
 }
-.lib-table th.align-center {
+.lib-table th.align-left,
+.lib-table td.align-left {
+    text-align: left;
+}
+.lib-table th.align-center,
+.lib-table td.align-center {
     text-align: center;
 }
-.lib-table th.align-right {
+.lib-table th.align-right,
+.lib-table td.align-right {
     text-align: right;
 }
 .lib-table tbody tr:hover {

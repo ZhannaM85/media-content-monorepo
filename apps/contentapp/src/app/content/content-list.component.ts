@@ -52,11 +52,11 @@ export class ContentListComponent {
 
     columns: { key: string; label: string; align?: 'left' | 'center' | 'right' }[] = [
         { key: 'poster', label: '' },
-        { key: 'title', label: 'Title' },
-        { key: 'id', label: 'ID' },
-        { key: 'releaseDate', label: 'Release date' },
-        { key: 'voteAverage', label: 'Rating' },
-        { key: 'actions', label: 'Actions' },
+        { key: 'title', label: 'Title', align: 'left' },
+        { key: 'id', label: 'ID', align: 'left' },
+        { key: 'releaseDate', label: 'Release date', align: 'left' },
+        { key: 'voteAverage', label: 'Rating', align: 'left' },
+        { key: 'actions', label: 'Actions', align: 'center' },
     ];
 
     list = computed(() => {
