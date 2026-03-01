@@ -71,9 +71,9 @@ cd libs/shared-auth && npx jest -c jest.config.cts
 
 **E2E (Playwright):**
 
-```bash
-npx nx run admin-shell-e2e:e2e
-```
+1. **First time only:** install the browser: `npm run e2e:install` (downloads Chromium).
+2. **Ensure port 4200 is free** (stop `npm run start` or any other app using 4200).
+3. Run: `npm run e2e` (or `npx nx run admin-shell-e2e:e2e`).
 
 E2E covers: redirect to login when unauthenticated, login flow, content page, rights assign flow, and viewer not seeing “Add content”.
 

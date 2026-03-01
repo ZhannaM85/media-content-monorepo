@@ -29,22 +29,15 @@ export default defineConfig({
         reuseExistingServer: true,
         cwd: workspaceRoot,
     },
+    /* Use Chromium only by default (run `npm run e2e:install` once). For all browsers: add firefox/webkit projects and run `npx playwright install`. */
     projects: [
         {
             name: 'chromium',
             use: { ...devices['Desktop Chrome'] },
         },
-
-        {
-            name: 'firefox',
-            use: { ...devices['Desktop Firefox'] },
-        },
-
-        {
-            name: 'webkit',
-            use: { ...devices['Desktop Safari'] },
-        },
-
+        // Uncomment for multi-browser (then run `npx playwright install`)
+        // { name: 'firefox', use: { ...devices['Desktop Firefox'] } },
+        // { name: 'webkit', use: { ...devices['Desktop Safari'] } },
         // Uncomment for mobile browsers support
         /* {
       name: 'Mobile Chrome',
