@@ -20,8 +20,13 @@
         <a routerLink="new" class="btn">Add content</a>
     </span>
 </div>
-@if (loading() && list().length === 0) {
-    <p>Loading…</p>
+@if (loadingBlocking()) {
+    <div class="loading-overlay" role="status" aria-live="polite" aria-label="Loading">
+        <div class="loading-overlay__content">
+            <span class="loading-spinner loading-spinner--large" aria-hidden="true"></span>
+            <span class="loading-overlay__text">Loading…</span>
+        </div>
+    </div>
 } @else if (sortedList().length === 0) {
     <p class="empty-message" role="status">No content to display.</p>
 } @else {
@@ -109,8 +114,11 @@
         </cdk-virtual-scroll-viewport>
         </div>
     </div>
-    @if (loading() && list().length > 0) {
-        <p class="loading-more">Loading more…</p>
+    @if (loading() && !loadingBlocking() && list().length > 0) {
+        <div class="loading-more" role="status" aria-live="polite">
+            <span class="loading-spinner loading-spinner--small" aria-hidden="true"></span>
+            <span>Loading more…</span>
+        </div>
     }
     @if (filterStatus() === 'tmdb' && totalPages() > 1) {
         <lib-pagination
