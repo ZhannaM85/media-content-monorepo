@@ -72,8 +72,8 @@ export class ContentListComponent {
         { key: 'actions', label: 'Actions', align: 'center' },
     ];
 
-    /** Sortable column keys */
-    readonly sortableColumns = new Set(['title', 'id', 'releaseDate', 'voteAverage']);
+    /** Sortable column keys (ID excluded – not supported by TMDB discover API) */
+    readonly sortableColumns = new Set(['title', 'releaseDate', 'voteAverage']);
 
     /** Columns that support server-side sort via TMDB discover sort_by. ID has no API sort. */
     private readonly serverSortColumns = new Set([
@@ -189,7 +189,11 @@ export class ContentListComponent {
             this.sortColumn.set(columnKey);
             this.sortDirection.set('asc');
         }
-        if (!this.isSearchActive() && this.filterStatus() !== 'draft') {
+        if (
+            !this.isSearchActive() &&
+            this.filterStatus() !== 'draft' &&
+            this.serverSortColumns.has(columnKey)
+        ) {
             this.currentPage.set(1);
             this.loadPage();
         }
