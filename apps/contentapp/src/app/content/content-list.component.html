@@ -22,6 +22,8 @@
 </div>
 @if (loading() && list().length === 0) {
     <p>Loading…</p>
+} @else if (sortedList().length === 0) {
+    <p class="empty-message" role="status">No content to display.</p>
 } @else {
     <div class="virtual-table-wrapper">
         <div class="virtual-table-inner">

@@ -6,6 +6,13 @@
     flex-wrap: wrap;
 }
 
+.empty-message {
+    padding: 2rem;
+    text-align: center;
+    color: var(--color-text-secondary, #666);
+    font-size: 1rem;
+}
+
 .search-label {
     display: inline-flex;
     align-items: center;
