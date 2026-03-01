@@ -22,29 +22,37 @@ export default defineConfig({
         /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
         trace: 'on-first-retry',
     },
-    /* Run your local dev server before starting the tests */
-    webServer: {
-        command: 'npx nx run admin-shell:serve',
-        url: 'http://localhost:4200',
-        reuseExistingServer: true,
-        cwd: workspaceRoot,
-    },
+    /* When E2E_SERVER_EXTERNAL=1 (e2e:watch): one browser, one test at a time, so you can follow. */
+    ...(process.env['E2E_SERVER_EXTERNAL']
+        ? { workers: 1, fullyParallel: false }
+        : {}),
+    /* When E2E_SERVER_EXTERNAL=1 (e2e:watch), omit webServer so Playwright does not require command; you start the app yourself. */
+    ...(process.env['E2E_SERVER_EXTERNAL']
+        ? {}
+        : {
+              webServer: {
+                  command: 'npx nx run admin-shell:serve',
+                  url: 'http://localhost:4200',
+                  reuseExistingServer: !process.env.CI,
+                  timeout: 300_000,
+                  cwd: workspaceRoot,
+              },
+          }),
+    /* Use Chromium only by default (run `npm run e2e:install` once). For all browsers: add firefox/webkit projects and run `npx playwright install`. */
+    /* In watch mode (E2E_SERVER_EXTERNAL), slow down the browser so you can see each step. */
     projects: [
         {
             name: 'chromium',
-            use: { ...devices['Desktop Chrome'] },
+            use: {
+                ...devices['Desktop Chrome'],
+                ...(process.env['E2E_SERVER_EXTERNAL']
+                    ? { launchOptions: { slowMo: 800 } }
+                    : {}),
+            },
         },
-
-        {
-            name: 'firefox',
-            use: { ...devices['Desktop Firefox'] },
-        },
-
-        {
-            name: 'webkit',
-            use: { ...devices['Desktop Safari'] },
-        },
-
+        // Uncomment for multi-browser (then run `npx playwright install`)
+        // { name: 'firefox', use: { ...devices['Desktop Firefox'] } },
+        // { name: 'webkit', use: { ...devices['Desktop Safari'] } },
         // Uncomment for mobile browsers support
         /* {
       name: 'Mobile Chrome',
