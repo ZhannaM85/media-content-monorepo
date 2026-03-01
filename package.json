@@ -6,14 +6,17 @@
         "start": "node scripts/inject-env.js && nx serve admin-shell",
         "build": "node scripts/inject-env.js && nx build admin-shell",
         "lint": "nx run-many -t lint --projects=admin-shell,contentapp,rightsapp,shared-ui,shared-auth,shared-data-access,media-content",
-        "e2e": "nx run admin-shell-e2e:e2e",
+        "e2e": "concurrently -k -s first -n server,e2e \"node scripts/inject-env.js && nx run admin-shell:serve\" \"wait-on -t 300000 http://localhost:4200 && cross-env E2E_SERVER_EXTERNAL=1 nx run admin-shell-e2e:e2e\"",
         "e2e:install": "npx playwright install chromium",
         "e2e:ui": "nx run admin-shell-e2e:e2e --ui",
-        "e2e:headed": "nx run admin-shell-e2e:e2e --headed"
+        "e2e:headed": "nx run admin-shell-e2e:e2e --headed",
+        "e2e:watch": "cross-env E2E_SERVER_EXTERNAL=1 nx run admin-shell-e2e:e2e --headed",
+        "e2e:ui:watch": "cross-env E2E_SERVER_EXTERNAL=1 nx run admin-shell-e2e:e2e --ui"
     },
     "private": true,
     "dependencies": {
         "@angular-devkit/build-angular": "~21.1.0",
+        "@angular/animations": "~21.1.0",
         "@angular/cdk": "~21.1.0",
         "@angular/common": "~21.1.0",
         "@angular/compiler": "~21.1.0",
@@ -78,6 +81,10 @@
         "tslib": "^2.3.0",
         "typescript": "~5.9.2",
         "typescript-eslint": "^8.40.0",
-        "vitest": "^4.0.8"
+        "vitest": "^4.0.8",
+        "webpack": "^5.97.0",
+        "concurrently": "^9.1.0",
+        "wait-on": "^8.0.1",
+        "cross-env": "^7.0.3"
     }
 }
