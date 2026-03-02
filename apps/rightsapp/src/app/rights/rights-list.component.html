@@ -1,4 +1,7 @@
 <h1>Rights</h1>
+@if (storageError()) {
+    <p class="error" role="alert">{{ storageError() }}</p>
+}
 <p *libHasRole="'editor'">
     <a routerLink="assign/new" class="btn">Assign rights (new)</a>
 </p>
