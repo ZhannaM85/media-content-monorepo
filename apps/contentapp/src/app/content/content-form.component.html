@@ -1,4 +1,7 @@
 <h1>{{ isEdit() ? 'Edit content' : 'New content' }}</h1>
+@if (loadError()) {
+    <p class="error" role="alert">{{ loadError() }}</p>
+}
 <div class="layout">
     <form [formGroup]="form" (ngSubmit)="onSubmit()">
         <div>

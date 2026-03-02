@@ -11,8 +11,8 @@ import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { ScrollingModule } from '@angular/cdk/scrolling';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
-import { BehaviorSubject } from 'rxjs';
-import { debounceTime, distinctUntilChanged, filter, throttleTime } from 'rxjs/operators';
+import { BehaviorSubject, EMPTY, Subject } from 'rxjs';
+import { catchError, debounceTime, distinctUntilChanged, map, switchMap, throttleTime } from 'rxjs/operators';
 import {
     TmdbService,
     RightsStoreService,
@@ -28,6 +28,7 @@ const ROW_HEIGHT_PX = 80;
 const SEARCH_DEBOUNCE_MS = 300;
 const SEARCH_THROTTLE_MS = 300;
 const SEARCH_MIN_CHARS = 3;
+type SearchRequest = { term: string; page: number; append: boolean } | null;
 
 @Component({
     selector: 'app-content-list',
@@ -106,17 +107,14 @@ export class ContentListComponent {
 
     /** Raw search input (bound to the input field) */
     searchQuery = signal('');
-    /** Search term stream: throttle + debounce, only emit when length >= 3 or length === 0 */
+    /** Search term stream: throttle + debounce for user typing. */
     private readonly searchInput$ = new BehaviorSubject<string>('');
+    private readonly searchRequest$ = new Subject<SearchRequest>();
     /** Effective search term (debounced/throttled, min 3 chars or empty) */
     readonly searchTerm = toSignal(
         this.searchInput$.pipe(
             throttleTime(SEARCH_THROTTLE_MS),
             debounceTime(SEARCH_DEBOUNCE_MS),
-            filter(
-                (term) =>
-                    term.length >= SEARCH_MIN_CHARS || term.length === 0
-            ),
             distinctUntilChanged()
         ),
         { initialValue: '' }
@@ -220,12 +218,57 @@ export class ContentListComponent {
     }
 
     constructor() {
+        this.searchRequest$
+            .pipe(
+                switchMap((request) => {
+                    if (!request) {
+                        this.loading.set(false);
+                        this.loadingBlocking.set(false);
+                        return EMPTY;
+                    }
+                    this.loading.set(true);
+                    if (request.page === 1) {
+                        this.loadingBlocking.set(true);
+                    }
+                    return this.tmdb.searchMovies(request.term, request.page).pipe(
+                        catchError(() => {
+                            this.loading.set(false);
+                            if (request.page === 1) {
+                                this.loadingBlocking.set(false);
+                            }
+                            return EMPTY;
+                        }),
+                        // Keep request metadata after switchMap for list update strategy.
+                        map((res) => ({
+                            res,
+                            page: request.page,
+                            append: request.append,
+                        })),
+                    );
+                }),
+                takeUntilDestroyed(this.destroyRef),
+            )
+            .subscribe(({ res, page, append }) => {
+                if (append) {
+                    this.searchResults.update((prev) => [...prev, ...res.results]);
+                } else {
+                    this.searchResults.set(res.results);
+                }
+                this.searchTotalPages.set(res.totalPages);
+                this.searchCurrentPage.set(res.page);
+                this.loading.set(false);
+                if (page === 1) {
+                    this.loadingBlocking.set(false);
+                }
+            });
+
         this.loadPage();
         effect(() => {
             const term = (this.searchTerm() ?? '').trim();
             if (term.length >= SEARCH_MIN_CHARS) {
-                this.runSearch(term, 1);
+                this.requestSearch({ term, page: 1, append: false });
             } else {
+                this.requestSearch(null);
                 this.searchResults.set([]);
                 this.searchTotalPages.set(0);
                 this.searchCurrentPage.set(0);
@@ -233,28 +276,8 @@ export class ContentListComponent {
         });
     }
 
-    /** Run API search and update searchResults (only apply if term still matches current search). */
-    private runSearch(term: string, page: number): void {
-        this.loading.set(true);
-        if (page === 1) this.loadingBlocking.set(true);
-        this.tmdb.searchMovies(term, page).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-            next: (res) => {
-                if ((this.searchTerm() ?? '').trim() !== term) return;
-                if (page === 1) {
-                    this.searchResults.set(res.results);
-                } else {
-                    this.searchResults.update((prev) => [...prev, ...res.results]);
-                }
-                this.searchTotalPages.set(res.totalPages);
-                this.searchCurrentPage.set(res.page);
-                this.loading.set(false);
-                if (page === 1) this.loadingBlocking.set(false);
-            },
-            error: () => {
-                this.loading.set(false);
-                if (page === 1) this.loadingBlocking.set(false);
-            },
-        });
+    private requestSearch(request: SearchRequest): void {
+        this.searchRequest$.next(request);
     }
 
     /** Load next page of search results (infinite scroll in search mode). */
@@ -264,16 +287,10 @@ export class ContentListComponent {
         const current = this.searchCurrentPage();
         const total = this.searchTotalPages();
         if (current >= total || this.loading()) return;
-        this.loading.set(true);
-        this.tmdb.searchMovies(term, current + 1).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-            next: (res) => {
-                if ((this.searchTerm() ?? '').trim() !== term) return;
-                this.searchResults.update((prev) => [...prev, ...res.results]);
-                this.searchTotalPages.set(res.totalPages);
-                this.searchCurrentPage.set(res.page);
-                this.loading.set(false);
-            },
-            error: () => this.loading.set(false),
+        this.requestSearch({
+            term,
+            page: current + 1,
+            append: true,
         });
     }
 
