@@ -1,13 +1,14 @@
 import {
     ChangeDetectionStrategy,
     Component,
+    DestroyRef,
     inject,
     signal,
     computed,
     effect,
     type Signal,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 import { map } from 'rxjs';
@@ -28,6 +29,7 @@ export class ContentFormComponent {
     private readonly route = inject(ActivatedRoute);
     private readonly tmdb = inject(TmdbService);
     private readonly draftService = inject(ContentDraftService);
+    private readonly destroyRef = inject(DestroyRef);
 
     form = this.fb.group({
         title: ['', [Validators.required, Validators.minLength(1)]],
@@ -40,6 +42,7 @@ export class ContentFormComponent {
     isEdit = computed(() => !!this.id());
     isDraft = signal(false);
     posterUrl = signal<string | null>(null);
+    loadError = signal<string | null>(null);
     titleError = computed(() => {
         const c = this.form.get('title');
         if (!c?.touched || !c?.errors) return null;
@@ -56,11 +59,13 @@ export class ContentFormComponent {
             const id = this.id();
             if (!id) {
                 this.posterUrl.set(null);
+                this.loadError.set(null);
                 return;
             }
             const draft = this.draftService.getDraft(id);
             if (draft) {
                 this.isDraft.set(true);
+                this.loadError.set(null);
                 this.form.patchValue({
                     title: draft.title,
                     overview: draft.overview ?? '',
@@ -75,16 +80,30 @@ export class ContentFormComponent {
             this.posterUrl.set(null);
             const numId = Number(id);
             if (!Number.isNaN(numId)) {
-                this.tmdb.getMovie(numId).subscribe((m) => {
-                    this.form.patchValue({
-                        title: m.title,
-                        overview: m.overview ?? '',
-                        releaseDate: m.releaseDate ?? '',
+                this.loadError.set(null);
+                this.tmdb
+                    .getMovie(numId)
+                    .pipe(takeUntilDestroyed(this.destroyRef))
+                    .subscribe({
+                        next: (m) => {
+                            this.form.patchValue({
+                                title: m.title,
+                                overview: m.overview ?? '',
+                                releaseDate: m.releaseDate ?? '',
+                            });
+                            this.posterUrl.set(
+                                this.largerPosterUrl(m.posterPath) ?? null,
+                            );
+                            this.loadError.set(null);
+                        },
+                        error: () => {
+                            this.loadError.set(
+                                'Failed to load movie. Please try again.',
+                            );
+                        },
                     });
-                    this.posterUrl.set(
-                        this.largerPosterUrl(m.posterPath) ?? null,
-                    );
-                });
+            } else {
+                this.loadError.set(null);
             }
         });
     }

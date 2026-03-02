@@ -15,6 +15,12 @@ h1 {
     color: var(--color-text);
     margin-bottom: 1rem;
 }
+
+.error {
+    color: var(--color-danger);
+    margin-bottom: 1rem;
+}
+
 a {
     color: var(--color-primary);
 }

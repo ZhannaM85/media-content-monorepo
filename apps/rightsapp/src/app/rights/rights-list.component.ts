@@ -19,6 +19,9 @@ const ROW_HEIGHT_PX = 52;
 export class RightsListComponent {
     private readonly rightsStore = inject(RightsStoreService);
     readonly rights = toSignal(this.rightsStore.getRights(), { initialValue: [] });
+    readonly storageError = toSignal(this.rightsStore.getStorageError(), {
+        initialValue: null,
+    });
     readonly rowHeightPx = ROW_HEIGHT_PX;
 
     columns: { key: string; label: string; align?: 'left' | 'center' | 'right' }[] = [

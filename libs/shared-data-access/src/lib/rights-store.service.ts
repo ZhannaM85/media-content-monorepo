@@ -6,12 +6,17 @@ const RIGHTS_STORAGE_KEY = 'media-content-rights';
 
 @Injectable({ providedIn: 'root' })
 export class RightsStoreService {
+    private readonly storageError$ = new BehaviorSubject<string | null>(null);
     private readonly rights$ = new BehaviorSubject<Rights[]>(
         this.loadFromStorage(),
     );
 
     getRights(): Observable<Rights[]> {
         return this.rights$.asObservable();
+    }
+
+    getStorageError(): Observable<string | null> {
+        return this.storageError$.asObservable();
     }
 
     getRightsByContentId(
@@ -50,10 +55,20 @@ export class RightsStoreService {
             const raw = sessionStorage.getItem(RIGHTS_STORAGE_KEY);
             if (raw) {
                 const parsed = JSON.parse(raw) as Rights[];
-                return Array.isArray(parsed) ? parsed : [];
+                if (!Array.isArray(parsed)) {
+                    this.storageError$.next(
+                        'Saved rights data is invalid and has been reset.',
+                    );
+                    return [];
+                }
+                this.storageError$.next(null);
+                return parsed;
             }
+            this.storageError$.next(null);
         } catch {
-            // ignore invalid or missing data
+            this.storageError$.next(
+                'Saved rights data could not be loaded from this browser session.',
+            );
         }
         return [];
     }
@@ -64,8 +79,11 @@ export class RightsStoreService {
                 RIGHTS_STORAGE_KEY,
                 JSON.stringify(rights),
             );
+            this.storageError$.next(null);
         } catch {
-            // ignore quota or security errors
+            this.storageError$.next(
+                'Rights could not be saved in this browser session.',
+            );
         }
     }
 }
