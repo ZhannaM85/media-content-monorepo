@@ -1,6 +1,7 @@
 import {
     ChangeDetectionStrategy,
     Component,
+    DestroyRef,
     inject,
     signal,
     computed,
@@ -9,7 +10,7 @@ import {
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { ScrollingModule } from '@angular/cdk/scrolling';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { BehaviorSubject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, filter, throttleTime } from 'rxjs/operators';
 import {
@@ -46,6 +47,7 @@ export class ContentListComponent {
     private readonly tmdb = inject(TmdbService);
     private readonly draftService = inject(ContentDraftService);
     private readonly rightsStore = inject(RightsStoreService);
+    private readonly destroyRef = inject(DestroyRef);
 
     private rightsList = toSignal(this.rightsStore.getRights(), {
         initialValue: [] as Rights[],
@@ -235,7 +237,7 @@ export class ContentListComponent {
     private runSearch(term: string, page: number): void {
         this.loading.set(true);
         if (page === 1) this.loadingBlocking.set(true);
-        this.tmdb.searchMovies(term, page).subscribe({
+        this.tmdb.searchMovies(term, page).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
             next: (res) => {
                 if ((this.searchTerm() ?? '').trim() !== term) return;
                 if (page === 1) {
@@ -263,7 +265,7 @@ export class ContentListComponent {
         const total = this.searchTotalPages();
         if (current >= total || this.loading()) return;
         this.loading.set(true);
-        this.tmdb.searchMovies(term, current + 1).subscribe({
+        this.tmdb.searchMovies(term, current + 1).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
             next: (res) => {
                 if ((this.searchTerm() ?? '').trim() !== term) return;
                 this.searchResults.update((prev) => [...prev, ...res.results]);
@@ -322,6 +324,7 @@ export class ContentListComponent {
                 page: nextPage,
                 sortBy: this.getDiscoverSortBy(),
             })
+            .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe({
                 next: (res) => {
                     this.tmdbResults.set([...this.tmdbResults(), ...res.results]);
@@ -342,6 +345,7 @@ export class ContentListComponent {
                 page: this.currentPage(),
                 sortBy: this.getDiscoverSortBy(),
             })
+            .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe({
                 next: (res) => {
                     this.tmdbResults.set(res.results);
