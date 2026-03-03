@@ -4,3 +4,4 @@ export * from './lib/auth.interceptor';
 export * from './lib/auth.guard';
 export * from './lib/role.guard';
 export * from './lib/has-role.directive';
+export * from './lib/http-error.service';

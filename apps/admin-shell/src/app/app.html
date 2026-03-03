@@ -16,5 +16,22 @@
     </div>
 </header>
 <main class="shell-main">
+    @if (httpError.error()) {
+    <div class="shell-error-banner" role="alert">
+        <div class="shell-error-banner__message">
+            {{ httpError.error()?.message }}
+        </div>
+        <div class="shell-error-banner__actions">
+            <button
+                type="button"
+                (click)="clearError()"
+                class="shell-error-banner__dismiss"
+                aria-label="Dismiss error message"
+            >
+                Dismiss
+            </button>
+        </div>
+    </div>
+    }
     <router-outlet></router-outlet>
 </main>
