@@ -66,3 +66,39 @@
     background: var(--color-bg);
     min-height: calc(100vh - 56px);
 }
+
+.shell-error-banner {
+    margin-bottom: 1rem;
+    padding: 0.75rem 1rem;
+    border-radius: var(--radius);
+    border: 1px solid #fca5a5;
+    background-color: #b91c1c;
+    color: #fef2f2;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.75rem;
+}
+
+.shell-error-banner__message {
+    flex: 1;
+}
+
+.shell-error-banner__actions {
+    display: flex;
+    align-items: center;
+}
+
+.shell-error-banner__dismiss {
+    padding: 0.25rem 0.6rem;
+    cursor: pointer;
+    border-radius: var(--radius);
+    border: 1px solid #fca5a5;
+    background: transparent;
+    color: #fef2f2;
+    font-size: 0.75rem;
+
+    &:hover {
+        background: #7f1d1d;
+    }
+}
