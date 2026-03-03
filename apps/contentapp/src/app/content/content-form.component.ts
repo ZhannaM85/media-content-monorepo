@@ -32,7 +32,15 @@ export class ContentFormComponent {
     private readonly destroyRef = inject(DestroyRef);
 
     form = this.fb.group({
-        title: ['', [Validators.required, Validators.minLength(1)]],
+        title: [
+            '',
+            [
+                Validators.required,
+                Validators.minLength(3),
+                Validators.maxLength(200),
+                Validators.pattern(/^(?!\s)(?!.*\s$).+$/),
+            ],
+        ],
         overview: [''],
         releaseDate: [''],
     });
@@ -47,6 +55,9 @@ export class ContentFormComponent {
         const c = this.form.get('title');
         if (!c?.touched || !c?.errors) return null;
         if (c.errors['required']) return 'Title is required';
+        if (c.errors['minlength']) return 'Title must be at least 3 characters';
+        if (c.errors['maxlength']) return 'Title must be at most 200 characters';
+        if (c.errors['pattern']) return 'Title cannot start or end with spaces';
         return null;
     });
 
