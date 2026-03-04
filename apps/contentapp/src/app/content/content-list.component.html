@@ -32,7 +32,7 @@
 } @else {
     <div class="virtual-table-wrapper">
         <div class="virtual-table-inner">
-        <table class="lib-table virtual-table-header content-table-fixed">
+        <table class="lib-table virtual-table-header content-table-fixed" role="table" aria-label="Content list table headers">
             <colgroup>
                 <col class="col-poster" />
                 <col class="col-title" />
@@ -45,21 +45,31 @@
                 <tr>
                     @for (col of columns; track col.key) {
                         <th
+                            scope="col"
                             [class.align-left]="col.align === 'left'"
                             [class.align-center]="col.align === 'center'"
                             [class.align-right]="col.align === 'right'"
                             [class.sortable]="sortableColumns.has(col.key)"
-                            (click)="setSort(col.key)"
+                            [attr.aria-sort]="sortableColumns.has(col.key) ? getAriaSort(col.key) : null"
                         >
-                            <span class="th-label">{{ col.label }}</span>
                             @if (sortableColumns.has(col.key)) {
-                                <span class="sort-indicator" [attr.aria-label]="getSortAriaLabel(col.key)">
-                                    @if (sortColumn() === col.key) {
-                                        {{ sortDirection() === 'asc' ? '↑' : '↓' }}
-                                    } @else {
-                                        <span class="sort-placeholder" aria-hidden="true">↕</span>
-                                    }
-                                </span>
+                                <button
+                                    type="button"
+                                    class="sort-button"
+                                    (click)="setSort(col.key)"
+                                    [attr.aria-label]="getSortAriaLabel(col.key, col.label)"
+                                >
+                                    <span class="th-label">{{ col.label }}</span>
+                                    <span class="sort-indicator" aria-hidden="true">
+                                        @if (sortColumn() === col.key) {
+                                            {{ sortDirection() === 'asc' ? '↑' : '↓' }}
+                                        } @else {
+                                            <span class="sort-placeholder">↕</span>
+                                        }
+                                    </span>
+                                </button>
+                            } @else {
+                                <span class="th-label">{{ col.label }}</span>
                             }
                         </th>
                     }
@@ -71,9 +81,11 @@
             [minBufferPx]="rowHeightPx * 4"
             [maxBufferPx]="rowHeightPx * 8"
             class="content-viewport"
+            role="region"
+            aria-label="Content list results"
             (scrolledIndexChange)="onScrolledIndexChange($event)"
         >
-            <table class="lib-table content-table-fixed">
+            <table class="lib-table content-table-fixed" role="table" aria-label="Content list">
                 <colgroup>
                     <col class="col-poster" />
                     <col class="col-title" />
@@ -82,9 +94,9 @@
                     <col class="col-rating" />
                     <col class="col-actions" />
                 </colgroup>
-                <tbody>
-                    <tr *cdkVirtualFor="let item of sortedList()" class="lib-table-row">
-                        <td class="poster-cell">
+                <tbody role="rowgroup">
+                    <tr *cdkVirtualFor="let item of sortedList()" class="lib-table-row" role="row">
+                        <td class="poster-cell" role="cell">
                             @if (item.posterPath) {
                                 <img
                                     [src]="item.posterPath"
@@ -96,11 +108,11 @@
                                 <div class="poster-placeholder">No image</div>
                             }
                         </td>
-                        <td class="title-cell"><span class="title-cell-inner">{{ item.title }}</span></td>
-                        <td class="cell-id">{{ item.id }}</td>
-                        <td class="cell-release">{{ item.releaseDate || '—' }}</td>
-                        <td class="cell-rating">{{ item.voteAverage ?? '—' }}</td>
-                        <td class="content-cell actions-cell">
+                        <td class="title-cell" role="cell"><span class="title-cell-inner">{{ item.title }}</span></td>
+                        <td class="cell-id" role="cell">{{ item.id }}</td>
+                        <td class="cell-release" role="cell">{{ item.releaseDate || '—' }}</td>
+                        <td class="cell-rating" role="cell">{{ item.voteAverage ?? '—' }}</td>
+                        <td class="content-cell actions-cell" role="cell">
                             <a [routerLink]="[item.id, 'edit']">Edit</a>
                             @if (hasRights(item.id)) {
                                 <a [routerLink]="['/rights/assign', item.id]" class="link-rights">Edit rights</a>
