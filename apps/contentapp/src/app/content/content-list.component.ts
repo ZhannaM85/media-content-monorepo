@@ -181,11 +181,18 @@ export class ContentListComponent {
         });
     });
 
-    getSortAriaLabel(columnKey: string): string {
-        if (this.sortColumn() !== columnKey) return 'Click to sort';
+    getSortAriaLabel(columnKey: string, columnLabel: string): string {
+        if (this.sortColumn() !== columnKey) {
+            return `Sort by ${columnLabel} ascending`;
+        }
         return this.sortDirection() === 'asc'
-            ? 'Sorted ascending'
-            : 'Sorted descending';
+            ? `Sorted by ${columnLabel} ascending. Activate to sort descending`
+            : `Sorted by ${columnLabel} descending. Activate to clear sorting`;
+    }
+
+    getAriaSort(columnKey: string): 'none' | 'ascending' | 'descending' {
+        if (this.sortColumn() !== columnKey) return 'none';
+        return this.sortDirection() === 'asc' ? 'ascending' : 'descending';
     }
 
     setSort(columnKey: string): void {
