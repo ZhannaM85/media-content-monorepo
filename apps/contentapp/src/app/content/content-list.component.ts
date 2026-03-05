@@ -5,30 +5,21 @@ import {
     inject,
     signal,
     computed,
-    effect,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { ScrollingModule } from '@angular/cdk/scrolling';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
-import { BehaviorSubject, EMPTY, Subject } from 'rxjs';
-import { catchError, debounceTime, distinctUntilChanged, map, switchMap, throttleTime } from 'rxjs/operators';
-import {
-    TmdbService,
-    RightsStoreService,
-} from '@media-content/shared-data-access';
+import { TmdbService, RightsStoreService } from '@media-content/shared-data-access';
 import { PaginationComponent } from '@media-content/shared-ui';
 import type { Content, Rights } from '@media-content/shared-types';
 import { HasRoleDirective } from '@media-content/shared-auth';
 import { ContentDraftService } from './content-draft.service';
+import { ContentSearchService } from './content-search.service';
+import { ContentSortPipe } from './content-sort.pipe';
 
 /** Row height in px for CDK virtual scroll (must match CSS .content-viewport .lib-table tbody tr height) */
 const ROW_HEIGHT_PX = 80;
-
-const SEARCH_DEBOUNCE_MS = 300;
-const SEARCH_THROTTLE_MS = 300;
-const SEARCH_MIN_CHARS = 3;
-type SearchRequest = { term: string; page: number; append: boolean } | null;
 
 @Component({
     selector: 'app-content-list',
@@ -49,6 +40,8 @@ export class ContentListComponent {
     private readonly draftService = inject(ContentDraftService);
     private readonly rightsStore = inject(RightsStoreService);
     private readonly destroyRef = inject(DestroyRef);
+    private readonly searchService = inject(ContentSearchService);
+    private readonly contentSortPipe = inject(ContentSortPipe);
 
     private rightsList = toSignal(this.rightsStore.getRights(), {
         initialValue: [] as Rights[],
@@ -61,12 +54,19 @@ export class ContentListComponent {
 
     filterStatus = signal<'all' | 'tmdb' | 'draft'>('all');
     currentPage = signal(1);
-    loading = signal(false);
-    /** True when waiting for an API response that replaces the main list (filter, search, initial load, sort). Full-page spinner shows. */
-    loadingBlocking = signal(false);
+    private discoverLoading = signal(false);
+    private discoverLoadingBlocking = signal(false);
     totalPages = signal(0);
     private tmdbResults = signal<Content[]>([]);
     readonly rowHeightPx = ROW_HEIGHT_PX;
+
+    /** Combined loading state for template (discover + search). */
+    loadingBlocking = computed(
+        () => this.discoverLoadingBlocking() || this.searchService.loadingBlocking()
+    );
+    loading = computed(
+        () => this.discoverLoading() || this.searchService.loading()
+    );
 
     columns: { key: string; label: string; align?: 'left' | 'center' | 'right' }[] = [
         { key: 'poster', label: '' },
@@ -77,10 +77,7 @@ export class ContentListComponent {
         { key: 'actions', label: 'Actions', align: 'center' },
     ];
 
-    /** Sortable column keys (ID excluded – not supported by TMDB discover API) */
     readonly sortableColumns = new Set(['title', 'releaseDate', 'voteAverage']);
-
-    /** Columns that support server-side sort via TMDB discover sort_by. ID has no API sort. */
     private readonly serverSortColumns = new Set([
         'title',
         'releaseDate',
@@ -90,7 +87,6 @@ export class ContentListComponent {
     sortColumn = signal<string | null>(null);
     sortDirection = signal<'asc' | 'desc'>('asc');
 
-    /** TMDB sort_by value for discover API (e.g. title.asc, release_date.desc). Undefined for id. */
     private getDiscoverSortBy(): string {
         const col = this.sortColumn();
         const dir = this.sortDirection();
@@ -105,27 +101,8 @@ export class ContentListComponent {
         return `${tmdbKey}.${suffix}`;
     }
 
-    /** Raw search input (bound to the input field) */
-    searchQuery = signal('');
-    /** Search term stream: throttle + debounce for user typing. */
-    private readonly searchInput$ = new BehaviorSubject<string>('');
-    private readonly searchRequest$ = new Subject<SearchRequest>();
-    /** Effective search term (debounced/throttled, min 3 chars or empty) */
-    readonly searchTerm = toSignal(
-        this.searchInput$.pipe(
-            throttleTime(SEARCH_THROTTLE_MS),
-            debounceTime(SEARCH_DEBOUNCE_MS),
-            distinctUntilChanged()
-        ),
-        { initialValue: '' }
-    );
+    searchQuery = this.searchService.searchQuery;
 
-    /** Results from API search (when user has typed 3+ chars). Empty when not searching. */
-    private searchResults = signal<Content[]>([]);
-    private searchTotalPages = signal(0);
-    private searchCurrentPage = signal(1);
-
-    /** Base list: discover + drafts, or filter by tmdb/draft. */
     private baseList = computed(() => {
         const filter = this.filterStatus();
         const tmdb = this.tmdbResults();
@@ -135,17 +112,14 @@ export class ContentListComponent {
         return [...drafts, ...tmdb];
     });
 
-    /** True when search is active (user typed 3+ chars and we show API search results). */
-    private isSearchActive = computed(
-        () => (this.searchQuery() ?? '').trim().length >= SEARCH_MIN_CHARS
-    );
+    private isSearchActive = computed(() => this.searchService.isSearchActive());
 
-    /** List to display: API search results when searching, otherwise base list. */
     list = computed(() =>
-        this.isSearchActive() ? this.searchResults() : this.baseList()
+        this.isSearchActive()
+            ? this.searchService.searchResults()
+            : this.baseList()
     );
 
-    /** When true, list is already sorted by API (discover with title/releaseDate/voteAverage). */
     private isServerSorted = computed(() => {
         const col = this.sortColumn();
         return (
@@ -156,30 +130,14 @@ export class ContentListComponent {
         );
     });
 
-    sortedList = computed(() => {
-        const items = this.list();
-        if (this.isServerSorted()) return items;
-        const col = this.sortColumn();
-        const dir = this.sortDirection();
-        if (!col || !this.sortableColumns.has(col)) return items;
-        const asc = dir === 'asc';
-        return [...items].sort((a, b) => {
-            const aVal = a[col as keyof Content];
-            const bVal = b[col as keyof Content];
-            if (aVal == null && bVal == null) return 0;
-            if (aVal == null) return asc ? 1 : -1;
-            if (bVal == null) return asc ? -1 : 1;
-            if (typeof aVal === 'string' && typeof bVal === 'string') {
-                return asc
-                    ? aVal.localeCompare(bVal)
-                    : bVal.localeCompare(aVal);
-            }
-            if (typeof aVal === 'number' && typeof bVal === 'number') {
-                return asc ? aVal - bVal : bVal - aVal;
-            }
-            return String(aVal).localeCompare(String(bVal), undefined, { numeric: true });
-        });
-    });
+    sortedList = computed(() =>
+        this.contentSortPipe.transform(
+            this.list(),
+            this.sortColumn(),
+            this.sortDirection(),
+            this.isServerSorted()
+        )
+    );
 
     getSortAriaLabel(columnKey: string, columnLabel: string): string {
         if (this.sortColumn() !== columnKey) {
@@ -220,85 +178,11 @@ export class ContentListComponent {
     }
 
     onSearchChange(value: string): void {
-        this.searchQuery.set(value);
-        this.searchInput$.next(value);
+        this.searchService.setSearchInput(value);
     }
 
     constructor() {
-        this.searchRequest$
-            .pipe(
-                switchMap((request) => {
-                    if (!request) {
-                        this.loading.set(false);
-                        this.loadingBlocking.set(false);
-                        return EMPTY;
-                    }
-                    this.loading.set(true);
-                    if (request.page === 1) {
-                        this.loadingBlocking.set(true);
-                    }
-                    return this.tmdb.searchMovies(request.term, request.page).pipe(
-                        catchError(() => {
-                            this.loading.set(false);
-                            if (request.page === 1) {
-                                this.loadingBlocking.set(false);
-                            }
-                            return EMPTY;
-                        }),
-                        // Keep request metadata after switchMap for list update strategy.
-                        map((res) => ({
-                            res,
-                            page: request.page,
-                            append: request.append,
-                        })),
-                    );
-                }),
-                takeUntilDestroyed(this.destroyRef),
-            )
-            .subscribe(({ res, page, append }) => {
-                if (append) {
-                    this.searchResults.update((prev) => [...prev, ...res.results]);
-                } else {
-                    this.searchResults.set(res.results);
-                }
-                this.searchTotalPages.set(res.totalPages);
-                this.searchCurrentPage.set(res.page);
-                this.loading.set(false);
-                if (page === 1) {
-                    this.loadingBlocking.set(false);
-                }
-            });
-
         this.loadPage();
-        effect(() => {
-            const term = (this.searchTerm() ?? '').trim();
-            if (term.length >= SEARCH_MIN_CHARS) {
-                this.requestSearch({ term, page: 1, append: false });
-            } else {
-                this.requestSearch(null);
-                this.searchResults.set([]);
-                this.searchTotalPages.set(0);
-                this.searchCurrentPage.set(0);
-            }
-        });
-    }
-
-    private requestSearch(request: SearchRequest): void {
-        this.searchRequest$.next(request);
-    }
-
-    /** Load next page of search results (infinite scroll in search mode). */
-    private loadMoreSearch(): void {
-        const term = (this.searchTerm() ?? '').trim();
-        if (term.length < SEARCH_MIN_CHARS) return;
-        const current = this.searchCurrentPage();
-        const total = this.searchTotalPages();
-        if (current >= total || this.loading()) return;
-        this.requestSearch({
-            term,
-            page: current + 1,
-            append: true,
-        });
     }
 
     trackById(_index: number, item: Content): number | string {
@@ -309,17 +193,16 @@ export class ContentListComponent {
         return this.contentIdsWithRights().has(String(contentId));
     }
 
-    onFilterChange(v: string) {
+    onFilterChange(v: string): void {
         this.filterStatus.set(v as 'all' | 'tmdb' | 'draft');
         if (v !== 'draft') this.loadPage();
     }
 
-    goToPage(page: number) {
+    goToPage(page: number): void {
         this.currentPage.set(page);
         this.loadPage();
     }
 
-    /** Called when user scrolls near the end of the list – load next page (discover or search). */
     onScrolledIndexChange(firstVisibleIndex: number): void {
         if (this.loading()) return;
         const listLength = this.sortedList().length;
@@ -328,7 +211,7 @@ export class ContentListComponent {
             return;
         }
         if (this.isSearchActive()) {
-            this.loadMoreSearch();
+            this.searchService.loadMoreSearch();
         } else {
             if (this.filterStatus() === 'draft') return;
             if (this.currentPage() >= this.totalPages()) return;
@@ -336,13 +219,12 @@ export class ContentListComponent {
         }
     }
 
-    /** Load next page from TMDB and append to current results (infinite scroll) */
     private loadMore(): void {
         if (this.filterStatus() === 'draft') return;
         if (this.currentPage() >= this.totalPages()) return;
-        if (this.loading()) return;
+        if (this.discoverLoading()) return;
         const nextPage = this.currentPage() + 1;
-        this.loading.set(true);
+        this.discoverLoading.set(true);
         this.tmdb
             .discoverMovies({
                 page: nextPage,
@@ -354,16 +236,16 @@ export class ContentListComponent {
                     this.tmdbResults.set([...this.tmdbResults(), ...res.results]);
                     this.totalPages.set(res.totalPages);
                     this.currentPage.set(nextPage);
-                    this.loading.set(false);
+                    this.discoverLoading.set(false);
                 },
-                error: () => this.loading.set(false),
+                error: () => this.discoverLoading.set(false),
             });
     }
 
-    private loadPage() {
+    private loadPage(): void {
         if (this.filterStatus() === 'draft') return;
-        this.loading.set(true);
-        this.loadingBlocking.set(true);
+        this.discoverLoading.set(true);
+        this.discoverLoadingBlocking.set(true);
         this.tmdb
             .discoverMovies({
                 page: this.currentPage(),
@@ -374,12 +256,12 @@ export class ContentListComponent {
                 next: (res) => {
                     this.tmdbResults.set(res.results);
                     this.totalPages.set(res.totalPages);
-                    this.loading.set(false);
-                    this.loadingBlocking.set(false);
+                    this.discoverLoading.set(false);
+                    this.discoverLoadingBlocking.set(false);
                 },
                 error: () => {
-                    this.loading.set(false);
-                    this.loadingBlocking.set(false);
+                    this.discoverLoading.set(false);
+                    this.discoverLoadingBlocking.set(false);
                 },
             });
     }
