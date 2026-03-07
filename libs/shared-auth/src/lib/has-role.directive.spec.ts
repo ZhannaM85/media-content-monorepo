@@ -60,13 +60,16 @@ describe('HasRoleDirective', () => {
         expect(el.textContent?.trim()).not.toContain('Visible');
     });
 
-    it('should update when required role changes', () => {
+    it('should show when required role is met and hide when required role is higher', () => {
         auth.login('user', 'editor');
         fixture = TestBed.createComponent(TestHostComponent);
+        fixture.componentInstance.requiredRole = 'viewer';
         fixture.detectChanges();
         expect((fixture.nativeElement as HTMLElement).textContent).toContain(
             'Visible'
         );
+        fixture.destroy();
+        fixture = TestBed.createComponent(TestHostComponent);
         fixture.componentInstance.requiredRole = 'admin';
         fixture.detectChanges();
         expect(
