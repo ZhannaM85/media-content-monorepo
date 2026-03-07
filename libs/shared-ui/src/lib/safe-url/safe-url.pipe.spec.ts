@@ -1,13 +1,21 @@
 import { TestBed } from '@angular/core/testing';
-import { DomSanitizer } from '@angular/platform-browser';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { SafeUrlPipe } from './safe-url.pipe';
+
+const mockSanitizer: Pick<DomSanitizer, 'bypassSecurityTrustResourceUrl'> = {
+    bypassSecurityTrustResourceUrl: (url: string) =>
+        ({ toString: () => `SafeValue(${url})` }) as SafeResourceUrl,
+};
 
 describe('SafeUrlPipe', () => {
     let pipe: SafeUrlPipe;
 
     beforeEach(() => {
         TestBed.configureTestingModule({
-            providers: [SafeUrlPipe, DomSanitizer],
+            providers: [
+                SafeUrlPipe,
+                { provide: DomSanitizer, useValue: mockSanitizer },
+            ],
         });
         pipe = TestBed.inject(SafeUrlPipe);
     });
