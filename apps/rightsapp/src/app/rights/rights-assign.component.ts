@@ -8,7 +8,7 @@ import {
 } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { Location } from '@angular/common';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { map, take } from 'rxjs';
 import {
@@ -23,7 +23,7 @@ const REGIONS: Region[] = ['US', 'EU', 'APAC'];
     selector: 'app-rights-assign',
     standalone: true,
     changeDetection: ChangeDetectionStrategy.OnPush,
-    imports: [ReactiveFormsModule, RouterLink],
+    imports: [ReactiveFormsModule],
     templateUrl: './rights-assign.component.html',
     styleUrl: './rights-assign.component.scss',
 })
