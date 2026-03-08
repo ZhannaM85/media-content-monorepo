@@ -41,7 +41,7 @@ export class ContentListComponent {
     private readonly rightsStore = inject(RightsStoreService);
     private readonly destroyRef = inject(DestroyRef);
     private readonly searchService = inject(ContentSearchService);
-    private readonly contentSortPipe = inject(ContentSortPipe);
+    private readonly contentSortPipe = new ContentSortPipe();
 
     private rightsList = toSignal(this.rightsStore.getRights(), {
         initialValue: [] as Rights[],
