@@ -6,7 +6,7 @@ import { HasRoleDirective } from '@media-content/shared-auth';
 import { toSignal } from '@angular/core/rxjs-interop';
 
 /** Row height in px for CDK virtual scroll */
-const ROW_HEIGHT_PX = 52;
+const ROW_HEIGHT_PX = 60;
 
 @Component({
     selector: 'app-rights-list',
