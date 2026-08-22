@@ -1,4 +1,4 @@
-# Media Rights Admin Platform
+# Media Rights Admin Platform Application
 
 A small production-style Angular platform demonstrating **Nx monorepo**, **Module Federation** (micro frontends), shared libraries, and role-based access control. It simulates a simplified media/content rights management platform.
 
