@@ -16,7 +16,7 @@ describe('authInterceptor', () => {
     let router: Router;
     let errorService: HttpErrorService;
 
-    const mockNext: HttpHandlerFn = (req) =>
+    const mockNext: HttpHandlerFn = () =>
         of(new HttpResponse({ status: 200, body: null }));
 
     beforeEach(() => {
@@ -82,7 +82,7 @@ describe('authInterceptor', () => {
 
         TestBed.runInInjectionContext(() => {
             authInterceptor(req, next).subscribe({
-                error: () => {},
+                error: () => undefined,
             });
         });
 
@@ -103,7 +103,7 @@ describe('authInterceptor', () => {
 
         TestBed.runInInjectionContext(() => {
             authInterceptor(req, next).subscribe({
-                error: () => {},
+                error: () => undefined,
             });
         });
 
@@ -126,7 +126,7 @@ describe('authInterceptor', () => {
 
         TestBed.runInInjectionContext(() => {
             authInterceptor(req, next).subscribe({
-                error: () => {},
+                error: () => undefined,
             });
         });
 
